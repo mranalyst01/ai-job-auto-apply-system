@@ -1413,14 +1413,14 @@
                     <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required autocomplete="new-password">
                 </div>
                 <div class="forgot-link">
-                    <a onclick="openForgotPassword()">Forgot Password?</a>
+                    <a href="javascript:void(0)" onclick="openForgotPassword()">Forgot Password?</a>
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg" style="width:100%">
                     <i class="fas fa-sign-in-alt"></i> Sign In
                 </button>
             </form>
             <p class="auth-footer">
-                Don't have an account? <a onclick="showSignup()">Create account</a>
+                Don't have an account? <a href="javascript:void(0)" onclick="showSignup()">Create account</a>
             </p>
         </div>
 
@@ -1455,7 +1455,7 @@
                 </button>
             </form>
             <p class="auth-footer">
-                Already have an account? <a onclick="showLogin()">Sign in</a>
+                Already have an account? <a href="javascript:void(0)" onclick="showLogin()">Sign in</a>
             </p>
         </div>
     </div>
@@ -2191,84 +2191,65 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const users = getStorage('aa_users') || [];
-            const user = users.find(u => u.email === email && u.password === password);
-            if (user) {
-                currentUser = user;
-                setStorage(STORAGE_KEYS.SESSION, { loggedIn: true, email });
-                setStorage(STORAGE_KEYS.USER, user);
-                showApp();
-                renderAll();
-                showToast('Welcome back, ' + user.name + '!', 'success');
-            } else {
-                showToast('Invalid email or password', 'error');
+            try {
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                let users = getStorage('aa_users');
+                if (!Array.isArray(users)) users = [];
+                const user = users.find(u => u.email === email && u.password === password);
+                if (user) {
+                    currentUser = user;
+                    setStorage(STORAGE_KEYS.SESSION, { loggedIn: true, email });
+                    setStorage(STORAGE_KEYS.USER, user);
+                    showApp();
+                    renderAll();
+                    showToast('Welcome back, ' + user.name + '!', 'success');
+                } else {
+                    showToast('Invalid email or password', 'error');
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                showToast('Something went wrong. Check console.', 'error');
             }
         }
 
         function handleSignup(e) {
             e.preventDefault();
-            const name = document.getElementById('signupName').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            let users = getStorage('aa_users') || [];
-            if (users.find(u => u.email === email)) {
-                showToast('Email already registered', 'error');
-                return;
-            }
-            const newUser = { name, email, password, created: new Date().toISOString() };
-            users.push(newUser);
-            setStorage('aa_users', users);
-            currentUser = newUser;
-            setStorage(STORAGE_KEYS.SESSION, { loggedIn: true, email });
-            setStorage(STORAGE_KEYS.USER, newUser);
-            showApp();
-            renderAll();
-            showToast('Account created! Welcome, ' + name, 'success');
-        }
+            try {
+                const name = document.getElementById('signupName').value.trim();
+                const email = document.getElementById('signupEmail').value.trim();
+                const password = document.getElementById('signupPassword').value;
 
-        // ============================================
-        function openGoogleSignIn() {
-            openModal('googleModal');
-        }
+                if (!name || !email || !password) {
+                    showToast('Please fill all fields', 'error');
+                    return;
+                }
+                if (password.length < 6) {
+                    showToast('Password must be at least 6 characters', 'error');
+                    return;
+                }
 
-        function googleSignIn(name, email) {
-            closeModal('googleModal');
-            let users = getStorage('aa_users') || [];
-            let user = users.find(u => u.email === email);
+                let users = getStorage('aa_users');
+                if (!Array.isArray(users)) users = [];
 
-            if (!user) {
-                // Auto-create account for Google user
-                user = { 
-                    name, 
-                    email, 
-                    password: 'google_oauth_' + Math.random().toString(36).slice(2), 
-                    created: new Date().toISOString(),
-                    provider: 'google'
-                };
-                users.push(user);
+                if (users.find(u => u.email === email)) {
+                    showToast('Email already registered', 'error');
+                    return;
+                }
+
+                const newUser = { name, email, password, created: new Date().toISOString() };
+                users.push(newUser);
                 setStorage('aa_users', users);
-                showToast('Google account connected! Welcome, ' + name, 'success');
-            } else {
-                showToast('Welcome back, ' + name + '!', 'success');
+                currentUser = newUser;
+                setStorage(STORAGE_KEYS.SESSION, { loggedIn: true, email });
+                setStorage(STORAGE_KEYS.USER, newUser);
+                showApp();
+                renderAll();
+                showToast('Account created! Welcome, ' + name, 'success');
+            } catch (err) {
+                console.error('Signup error:', err);
+                showToast('Something went wrong. Check console.', 'error');
             }
-
-            currentUser = user;
-            setStorage(STORAGE_KEYS.SESSION, { loggedIn: true, email, provider: 'google' });
-            setStorage(STORAGE_KEYS.USER, user);
-            showApp();
-            renderAll();
-        }
-
-        function googleSignInPrompt() {
-            const email = prompt('Enter your Google email:');
-            if (!email || !email.includes('@')) {
-                showToast('Please enter a valid email', 'error');
-                return;
-            }
-            const name = email.split('@')[0].replace(/\./g, ' ').replace(/\w/g, l => l.toUpperCase());
-            googleSignIn(name, email);
         }
 
         // ============================================
