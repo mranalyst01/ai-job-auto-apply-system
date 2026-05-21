@@ -1,1678 +1,694 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobAuto AI - Smart Job Auto Apply System</title>
-
-    <!-- ==================== INTERNAL CSS ==================== -->
-    <style>
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #111118;
-            --bg-card: rgba(20, 20, 35, 0.55);
-            --bg-card-hover: rgba(28, 28, 50, 0.7);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --border-active: rgba(255, 255, 255, 0.18);
-            --text-primary: #e8e8f0;
-            --text-secondary: #a0a0b8;
-            --text-muted: #6b6b80;
-            --accent: #7c5cfc;
-            --accent-glow: rgba(124, 92, 252, 0.35);
-            --accent-2: #5c9cff;
-            --accent-3: #45d9b5;
-            --gradient-1: linear-gradient(135deg, #7c5cfc 0%, #5c9cff 100%);
-            --gradient-2: linear-gradient(135deg, #45d9b5 0%, #3db8a0 100%);
-            --gradient-bg: radial-gradient(ellipse at 30% 20%, rgba(124, 92, 252, 0.08) 0%, transparent 55%),
-                radial-gradient(ellipse at 70% 60%, rgba(92, 156, 255, 0.06) 0%, transparent 55%),
-                radial-gradient(ellipse at 50% 80%, rgba(69, 217, 181, 0.04) 0%, transparent 50%);
-            --red: #f85149;
-            --orange: #f0a040;
-            --green: #3fb950;
-            --yellow: #d2991d;
-            --radius-sm: 8px;
-            --radius: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(255, 255, 255, 0.04) inset;
-            --shadow-glow: 0 0 40px rgba(124, 92, 252, 0.25);
-            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Animated background orbs */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -30%;
-            left: -15%;
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(124, 92, 252, 0.06) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-            animation: orbFloat1 18s ease-in-out infinite;
-        }
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -25%;
-            right: -10%;
-            width: 50vw;
-            height: 50vw;
-            background: radial-gradient(circle, rgba(92, 156, 255, 0.05) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-            animation: orbFloat2 22s ease-in-out infinite;
-        }
-        @keyframes orbFloat1 {
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-            33% {
-                transform: translate(4vw, 3vw);
-            }
-            66% {
-                transform: translate(-2vw, -3vw);
-            }
-        }
-        @keyframes orbFloat2 {
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-            33% {
-                transform: translate(-3vw, -4vw);
-            }
-            66% {
-                transform: translate(3vw, 2vw);
-            }
-        }
-
-        /* ========== LOGIN OVERLAY ========== */
-        .login-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(6, 6, 14, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: opacity 0.4s, visibility 0.4s;
-        }
-        .login-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .login-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-xl);
-            padding: 40px 36px;
-            width: 420px;
-            max-width: 92vw;
-            box-shadow: var(--shadow-card), var(--shadow-glow);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            text-align: center;
-            animation: slideUp 0.5s ease-out;
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .login-card .logo {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 6px;
-            letter-spacing: -1px;
-        }
-        .login-card .subtitle {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 28px;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 13px 16px;
-            margin-bottom: 14px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            outline: none;
-            transition: var(--transition);
-        }
-        .login-card input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-        .login-card .btn {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 4px;
-        }
-        .btn-primary {
-            background: var(--gradient-1);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(124, 92, 252, 0.35);
-        }
-        .btn-primary:hover {
-            box-shadow: 0 6px 24px rgba(124, 92, 252, 0.5);
-            transform: translateY(-1px);
-        }
-        .btn-ghost {
-            background: transparent;
-            color: var(--accent-2);
-            border: 1px solid var(--border-glass);
-            margin-top: 10px;
-        }
-        .btn-ghost:hover {
-            background: rgba(92, 156, 255, 0.08);
-        }
-        .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: #fff;
-            color: #333;
-            font-weight: 500;
-            border-radius: var(--radius);
-            padding: 11px;
-            margin-top: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid #ddd;
-        }
-        .google-btn:hover {
-            background: #f5f5f5;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .google-btn img {
-            width: 18px;
-            height: 18px;
-        }
-        .login-toggle {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 16px;
-        }
-        .login-toggle span {
-            color: var(--accent-2);
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: underline;
-            transition: var(--transition);
-        }
-        .login-toggle span:hover {
-            color: var(--accent);
-        }
-        .forgot-link {
-            font-size: 0.8rem;
-            color: var(--accent-2);
-            text-decoration: underline;
-            cursor: pointer;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-        .forgot-link:hover {
-            color: var(--accent);
-        }
-        /* Forgot password section */
-        #forgotSection {
-            display: none;
-        }
-        #forgotSection.active {
-            display: block;
-        }
-        #normalAuth {
-            display: block;
-        }
-        #normalAuth.hidden {
-            display: none;
-        }
-
-        /* ========== MAIN APP LAYOUT ========== */
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
-        }
-        .sidebar {
-            width: 240px;
-            min-width: 240px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-glass);
-            padding: 20px 16px;
-            display: flex;
-            flex-direction: column;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            z-index: 10;
-            transition: var(--transition);
-        }
-        .sidebar .logo-sm {
-            font-size: 1.3rem;
-            font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            padding: 0 8px;
-            margin-bottom: 28px;
-            letter-spacing: -0.5px;
-        }
-        .sidebar nav {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-        }
-        .sidebar nav a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px 14px;
-            border-radius: var(--radius);
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .sidebar nav a:hover {
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-primary);
-        }
-        .sidebar nav a.active {
-            background: rgba(124, 92, 252, 0.15);
-            color: var(--accent);
-            font-weight: 600;
-            box-shadow: 0 0 0 1px rgba(124, 92, 252, 0.25);
-        }
-        .sidebar .nav-icon {
-            font-size: 1.1rem;
-            width: 22px;
-            text-align: center;
-        }
-        .sidebar .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px;
-            border-top: 1px solid var(--border-glass);
-            margin-top: auto;
-        }
-        .sidebar .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--gradient-1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: #fff;
-            flex-shrink: 0;
-        }
-        .sidebar .user-name {
-            font-size: 0.85rem;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .sidebar .logout-btn {
-            font-size: 0.75rem;
-            color: var(--red);
-            cursor: pointer;
-            background: none;
-            border: none;
-            margin-left: auto;
-            transition: var(--transition);
-            white-space: nowrap;
-        }
-        .sidebar .logout-btn:hover {
-            color: #ff6b6b;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 28px 32px;
-            overflow-y: auto;
-            max-height: 100vh;
-            background: var(--gradient-bg);
-        }
-        .main-content .page {
-            display: none;
-            animation: fadeIn 0.35s ease-out;
-        }
-        .main-content .page.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .page-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
-        }
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 24px;
-        }
-
-        /* ========== CARDS & WIDGETS ========== */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-lg);
-            padding: 22px 24px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: var(--shadow-card);
-            transition: var(--transition);
-        }
-        .card:hover {
-            border-color: var(--border-active);
-            box-shadow: var(--shadow-card), 0 0 20px rgba(124, 92, 252, 0.08);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-        .card-header h3 {
-            font-size: 1.05rem;
-            font-weight: 600;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-        .badge-success {
-            background: rgba(63, 185, 80, 0.15);
-            color: var(--green);
-        }
-        .badge-warning {
-            background: rgba(240, 160, 64, 0.15);
-            color: var(--orange);
-        }
-        .badge-danger {
-            background: rgba(248, 81, 73, 0.15);
-            color: var(--red);
-        }
-        .badge-info {
-            background: rgba(92, 156, 255, 0.15);
-            color: var(--accent-2);
-        }
-        .badge-accent {
-            background: rgba(124, 92, 252, 0.18);
-            color: var(--accent);
-        }
-
-        /* Dashboard widgets */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-lg);
-            padding: 20px 22px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            text-align: center;
-            transition: var(--transition);
-        }
-        .stat-card:hover {
-            border-color: var(--border-active);
-            transform: translateY(-2px);
-        }
-        .stat-card .stat-value {
-            font-size: 2.4rem;
-            font-weight: 800;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .stat-card .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.82rem;
-            margin-top: 4px;
-        }
-
-        /* ========== JOB CARDS ========== */
-        .jobs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 16px;
-        }
-        .job-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-lg);
-            padding: 20px 22px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .job-card:hover {
-            border-color: var(--border-active);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card), 0 8px 32px rgba(0, 0, 0, 0.25);
-        }
-        .job-card .job-role {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-        .job-card .job-company {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-        .job-card .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 0.78rem;
-            color: var(--text-muted);
-        }
-        .job-card .job-meta span {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 4px 10px;
-            border-radius: 14px;
-            border: 1px solid var(--border-glass);
-        }
-        .job-card .job-skills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        .job-card .job-skills .skill-tag {
-            font-size: 0.7rem;
-            padding: 3px 9px;
-            border-radius: 12px;
-            background: rgba(124, 92, 252, 0.12);
-            color: var(--accent);
-            border: 1px solid rgba(124, 92, 252, 0.2);
-        }
-        .job-card .match-score {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            padding: 4px 10px;
-            border-radius: 14px;
-        }
-        .match-high {
-            background: rgba(63, 185, 80, 0.15);
-            color: var(--green);
-        }
-        .match-medium {
-            background: rgba(240, 160, 64, 0.15);
-            color: var(--orange);
-        }
-        .match-low {
-            background: rgba(248, 81, 73, 0.12);
-            color: var(--red);
-        }
-        .btn-sm {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-accent {
-            background: var(--gradient-1);
-            color: #fff;
-        }
-        .btn-accent:hover {
-            box-shadow: 0 4px 16px rgba(124, 92, 252, 0.4);
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-active);
-            color: var(--text-primary);
-        }
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.04);
-        }
-        .btn-danger-sm {
-            background: transparent;
-            border: 1px solid rgba(248, 81, 73, 0.4);
-            color: var(--red);
-            font-size: 0.75rem;
-            padding: 5px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-danger-sm:hover {
-            background: rgba(248, 81, 73, 0.1);
-        }
-
-        /* ========== FORMS ========== */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
-        .form-group label {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            letter-spacing: 0.2px;
-        }
-        .form-group input,
-        .form-group select {
-            padding: 11px 14px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-            transition: var(--transition);
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-        .form-group select {
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 36px;
-        }
-
-        /* Toggle switch */
-        .toggle-wrap {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .toggle-switch {
-            position: relative;
-            width: 48px;
-            height: 26px;
-            flex-shrink: 0;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 26px;
-            transition: var(--transition);
-        }
-        .toggle-slider::before {
-            content: '';
-            position: absolute;
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
-            background: #fff;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        .toggle-switch input:checked+.toggle-slider {
-            background: var(--accent);
-        }
-        .toggle-switch input:checked+.toggle-slider::before {
-            transform: translateX(22px);
-        }
-
-        /* ========== APPLICATION TABLE ========== */
-        .table-wrap {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.88rem;
-        }
-        table th,
-        table td {
-            padding: 12px 14px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-glass);
-        }
-        table th {
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        table tr:hover td {
-            background: rgba(255, 255, 255, 0.015);
-        }
-
-        /* ========== TOAST NOTIFICATIONS ========== */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-        .toast {
-            padding: 13px 18px;
-            border-radius: var(--radius);
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #fff;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            animation: slideInRight 0.35s ease-out, fadeOutRight 0.35s 2.5s ease-in forwards;
-            pointer-events: auto;
-            max-width: 380px;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
-        }
-        .toast-success {
-            background: rgba(63, 185, 80, 0.85);
-            border: 1px solid rgba(63, 185, 80, 0.5);
-        }
-        .toast-info {
-            background: rgba(92, 156, 255, 0.85);
-            border: 1px solid rgba(92, 156, 255, 0.5);
-        }
-        .toast-warning {
-            background: rgba(240, 160, 64, 0.85);
-            border: 1px solid rgba(240, 160, 64, 0.5);
-        }
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(60px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        @keyframes fadeOutRight {
-            from {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateX(40px);
-            }
-        }
-
-        /* ========== FILE UPLOAD ZONE ========== */
-        .upload-zone {
-            border: 2px dashed var(--border-glass);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            background: rgba(255, 255, 255, 0.015);
-        }
-        .upload-zone:hover {
-            border-color: var(--accent);
-            background: rgba(124, 92, 252, 0.04);
-        }
-        .upload-zone .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-        .upload-zone input[type='file'] {
-            display: none;
-        }
-        .file-preview {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: var(--radius);
-            margin-top: 12px;
-            border: 1px solid var(--border-glass);
-        }
-        .file-preview .file-icon {
-            font-size: 1.6rem;
-        }
-        .file-preview .file-info {
-            flex: 1;
-        }
-        .file-preview .file-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .file-preview .file-size {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 60px;
-                min-width: 60px;
-                padding: 16px 8px;
-            }
-            .sidebar .logo-sm {
-                font-size: 0;
-            }
-            .sidebar .logo-sm::first-letter {
-                font-size: 1.2rem;
-            }
-            .sidebar nav a {
-                justify-content: center;
-                padding: 11px 8px;
-                font-size: 0;
-                gap: 0;
-            }
-            .sidebar nav a .nav-icon {
-                font-size: 1.2rem;
-                margin: 0;
-            }
-            .sidebar .user-badge {
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 4px;
-            }
-            .sidebar .user-name,
-            .sidebar .logout-btn {
-                font-size: 0;
-            }
-            .main-content {
-                padding: 20px 16px;
-            }
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .jobs-grid {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .login-card {
-                padding: 28px 20px;
-            }
-        }
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                width: 48px;
-                min-width: 48px;
-                padding: 10px 4px;
-            }
-            .main-content {
-                padding: 14px 10px;
-            }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-        }
-
-        /* Loading spinner */
-        .spinner {
-            width: 22px;
-            height: 22px;
-            border: 2.5px solid rgba(255, 255, 255, 0.2);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            display: inline-block;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Job Auto Apply MVP</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg2:#101a35;
+      --card:rgba(255,255,255,.08);
+      --card2:rgba(255,255,255,.12);
+      --text:#e9efff;
+      --muted:#a9b4d0;
+      --line:rgba(255,255,255,.12);
+      --primary:#7c5cff;
+      --secondary:#22d3ee;
+      --success:#22c55e;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:22px;
+      --radius2:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124,92,255,.25), transparent 30%),
+        radial-gradient(circle at top right, rgba(34,211,238,.18), transparent 25%),
+        linear-gradient(135deg,var(--bg),var(--bg2));
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:280px 1fr;
+    }
+    .sidebar{
+      position:sticky;
+      top:0;
+      height:100vh;
+      padding:22px;
+      border-right:1px solid var(--line);
+      background:rgba(8,12,24,.55);
+      backdrop-filter:blur(20px);
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;margin-bottom:22px
+    }
+    .logo{
+      width:46px;height:46px;border-radius:16px;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      box-shadow:0 10px 30px rgba(124,92,255,.35);
+      display:grid;place-items:center;font-weight:800
+    }
+    .brand h1{font-size:18px;margin:0}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .nav{
+      display:grid;gap:10px;margin-top:24px
+    }
+    .nav button{
+      width:100%;
+      border:1px solid transparent;
+      background:transparent;color:var(--text);
+      padding:14px 16px;border-radius:16px;
+      text-align:left;cursor:pointer;
+      transition:.25s ease;
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .nav button:hover,.nav button.active{
+      background:var(--card);
+      border-color:var(--line);
+      transform:translateX(4px);
+    }
+    .sidebar-card{
+      margin-top:20px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+    }
+    .main{
+      padding:24px;
+    }
+    .topbar{
+      display:flex;justify-content:space-between;align-items:center;gap:16px;
+      margin-bottom:22px;
+    }
+    .topbar h2{margin:0;font-size:28px}
+    .topbar .muted{color:var(--muted);font-size:14px}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:18px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      backdrop-filter:blur(18px);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .widget{padding:18px}
+    .kpi{grid-column:span 3}
+    .kpi .value{font-size:28px;font-weight:800;margin:8px 0 4px}
+    .kpi .label{color:var(--muted);font-size:13px}
+    .section{grid-column:span 12;padding:18px}
+    .section h3{margin:0 0 14px;font-size:18px}
+    .flex{display:flex;gap:14px;flex-wrap:wrap}
+    .auth-wrap{
+      max-width:520px;margin:6vh auto 0;
+      padding:22px;
+    }
+    .tabs{display:flex;gap:10px;margin-bottom:18px}
+    .tabs button{
+      flex:1;border:1px solid var(--line);background:transparent;color:var(--text);
+      padding:12px;border-radius:14px;cursor:pointer
+    }
+    .tabs button.active{background:linear-gradient(135deg,var(--primary),var(--secondary));border-color:transparent}
+    form{display:grid;gap:12px}
+    input,select,textarea{
+      width:100%;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:13px 14px;
+      border-radius:14px;
+      outline:none;
+    }
+    textarea{min-height:110px;resize:vertical}
+    input::placeholder,textarea::placeholder{color:#93a0c7}
+    .row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .btn{
+      border:none;cursor:pointer;
+      padding:12px 16px;border-radius:14px;
+      color:white;font-weight:700;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      box-shadow:0 12px 30px rgba(124,92,255,.25);
+      transition:.25s ease;
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn.secondary{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid var(--line)}
+    .btn.danger{background:linear-gradient(135deg,var(--danger),#f97316)}
+    .btn.small{padding:10px 12px;border-radius:12px;font-size:13px}
+    .job-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .job-card{
+      padding:16px;border-radius:18px;background:rgba(255,255,255,.06);
+      border:1px solid var(--line);transition:.25s ease
+    }
+    .job-card:hover{transform:translateY(-4px);border-color:rgba(124,92,255,.5)}
+    .job-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:12px;padding:7px 10px;border-radius:999px;
+      background:rgba(34,211,238,.12);color:#8befff;border:1px solid rgba(34,211,238,.2)
+    }
+    .meta{color:var(--muted);font-size:13px;line-height:1.6}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+    .progress{
+      width:100%;height:10px;border-radius:999px;background:rgba(255,255,255,.07);
+      overflow:hidden;margin-top:10px
+    }
+    .progress > div{
+      height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));
+      width:0%
+    }
+    .status{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;font-size:12px
+    }
+    .s-success{background:rgba(34,197,94,.12);color:#86efac}
+    .s-warning{background:rgba(245,158,11,.12);color:#fdba74}
+    .s-danger{background:rgba(239,68,68,.12);color:#fca5a5}
+    .s-info{background:rgba(124,92,255,.12);color:#c4b5fd}
+    .hidden{display:none !important}
+    .toast{
+      position:fixed;right:18px;bottom:18px;z-index:9999;
+      background:rgba(15,23,42,.92);border:1px solid var(--line);
+      color:var(--text);padding:14px 16px;border-radius:14px;
+      box-shadow:var(--shadow);transform:translateY(20px);opacity:0;
+      transition:.3s ease;
+    }
+    .toast.show{transform:translateY(0);opacity:1}
+    .divider{height:1px;background:var(--line);margin:16px 0}
+    .mini{font-size:12px;color:var(--muted)}
+    .file-box{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      padding:14px;border:1px dashed rgba(255,255,255,.18);border-radius:16px
+    }
+    .switch{
+      display:flex;align-items:center;gap:12px
+    }
+    .switch input{width:18px;height:18px}
+    .loader{
+      width:18px;height:18px;border:2px solid rgba(255,255,255,.2);
+      border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:inline-block
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes float{50%{transform:translateY(-3px)}}
+    .animate{animation:float 4s ease-in-out infinite}
+    @media (max-width:1024px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto}
+      .job-grid{grid-template-columns:1fr}
+      .kpi{grid-column:span 6}
+    }
+    @media (max-width:640px){
+      .row{grid-template-columns:1fr}
+      .kpi{grid-column:span 12}
+      .topbar{flex-direction:column;align-items:flex-start}
+      .main{padding:16px}
+      .sidebar{padding:16px}
+    }
+  </style>
 </head>
 <body>
+  <div id="authView" class="auth-wrap card">
+    <div class="brand" style="margin-bottom:14px">
+      <div class="logo">AI</div>
+      <div>
+        <h1>Auto Apply Job Agent</h1>
+        <p>Single-file local MVP</p>
+      </div>
+    </div>
+    <div class="tabs">
+      <button id="tabLogin" class="active">Login</button>
+      <button id="tabSignup">Signup</button>
+    </div>
+    <form id="loginForm">
+      <input id="loginEmail" type="email" placeholder="Email" required />
+      <input id="loginPassword" type="password" placeholder="Password" required />
+      <button class="btn" type="submit">Login</button>
+    </form>
+    <form id="signupForm" class="hidden">
+      <input id="signupName" type="text" placeholder="Full Name" required />
+      <input id="signupEmail" type="email" placeholder="Email" required />
+      <input id="signupPassword" type="password" placeholder="Password" required />
+      <button class="btn" type="submit">Create Account</button>
+    </form>
+    <p class="mini" style="margin-top:12px">Data is saved locally in your browser with localStorage.</p>
+  </div>
 
-    <!-- ==================== LOGIN OVERLAY ==================== -->
-    <div class="login-overlay" id="loginOverlay">
-        <div class="login-card">
-            <div class="logo">⚡ JobAuto AI</div>
-            <div class="subtitle" id="loginSubtitle">Sign in to your account</div>
-
-            <!-- Normal Auth Section -->
-            <div id="normalAuth">
-                <form id="authForm" autocomplete="off">
-                    <input type="text" id="authName" placeholder="Full Name" style="display:none;">
-                    <input type="email" id="authEmail" placeholder="Email address" required>
-                    <input type="password" id="authPassword" placeholder="Password" required minlength="4">
-                    <div style="text-align:right;margin-bottom:12px;">
-                        <span class="forgot-link" id="forgotPasswordLink">Forgot Password?</span>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="authSubmitBtn">Sign In</button>
-                </form>
-                <button class="btn btn-ghost" id="authToggleBtn" style="width:100%;">Create an account</button>
-
-                <!-- Google Sign-In Button -->
-                <div class="google-btn" id="googleSignInBtn">
-                    <img src="https://www.google.com/favicon.ico" alt="G"> Sign in with Google
-                </div>
-                <div class="login-toggle" id="loginToggleText">
-                    Don't have an account? <span id="toggleLink">Sign up</span>
-                </div>
-            </div>
-
-            <!-- Forgot Password Section -->
-            <div id="forgotSection">
-                <h3 style="margin-bottom:18px;">Reset Password</h3>
-                <input type="email" id="forgotEmail" placeholder="Registered Email" required>
-                <input type="password" id="forgotNewPassword" placeholder="New Password" required minlength="4">
-                <button class="btn btn-primary" id="resetPasswordBtn">Reset Password</button>
-                <button class="btn btn-ghost" id="backToLoginBtn" style="margin-top:8px;">Back to Login</button>
-            </div>
+  <div id="appView" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">AI</div>
+        <div>
+          <h1>Job Auto Apply</h1>
+          <p id="userLabel">Welcome</p>
         </div>
-    </div>
+      </div>
+      <div class="nav">
+        <button data-view="dashboard" class="active">Dashboard <span>⌂</span></button>
+        <button data-view="profile">Profile <span>⌄</span></button>
+        <button data-view="resume">Resume <span>⤓</span></button>
+        <button data-view="jobs">Matched Jobs <span>↗</span></button>
+        <button data-view="tracking">Tracking <span>☰</span></button>
+      </div>
+      <div class="sidebar-card">
+        <div class="status s-info">Auto Apply: <span id="autoStatus">Off</span></div>
+        <div class="divider"></div>
+        <button id="logoutBtn" class="btn secondary" style="width:100%">Logout</button>
+      </div>
+    </aside>
 
-    <!-- ==================== MAIN APP ==================== -->
-    <div class="app-container" id="appContainer" style="display:none;">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="logo-sm">⚡ JobAuto AI</div>
-            <nav>
-                <a data-page="dashboard" class="active"><span class="nav-icon">📊</span> Dashboard</a>
-                <a data-page="jobs"><span class="nav-icon">💼</span> Find Jobs</a>
-                <a data-page="applications"><span class="nav-icon">📋</span> Applications</a>
-                <a data-page="profile"><span class="nav-icon">👤</span> Profile</a>
-                <a data-page="resume"><span class="nav-icon">📄</span> Resume</a>
-            </nav>
-            <div class="user-badge">
-                <div class="avatar" id="sidebarAvatar">U</div>
-                <span class="user-name" id="sidebarName">User</span>
-                <button class="logout-btn" id="logoutBtn">Logout</button>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2>AI Job Agent Dashboard</h2>
+          <div class="muted">Matches jobs locally, tracks applications, and auto-applies every 2 hours.</div>
+        </div>
+        <button id="manualRefreshBtn" class="btn secondary">Refresh Matches</button>
+      </div>
+
+      <section id="dashboardView" class="grid">
+        <div class="card widget kpi animate"><div class="label">Profile Completion</div><div id="kpiProfile" class="value">0%</div><div id="kpiProfileText" class="mini">Fill your profile to improve matching.</div></div>
+        <div class="card widget kpi animate"><div class="label">Uploaded Resume</div><div id="kpiResume" class="value">No</div><div id="kpiResumeText" class="mini">Upload PDF or DOCX resume.</div></div>
+        <div class="card widget kpi animate"><div class="label">Matched Jobs</div><div id="kpiMatched" class="value">0</div><div class="kpiText mini">Based on role, skills, location, salary.</div></div>
+        <div class="card widget kpi animate"><div class="label">Applied Jobs</div><div id="kpiApplied" class="value">0</div><div class="mini">Auto and manual applications tracked.</div></div>
+
+        <div class="card section">
+          <h3>Overview</h3>
+          <div class="flex">
+            <div class="status s-info">Auto Apply <strong id="dashAuto">OFF</strong></div>
+            <div class="status s-success">Applied <strong id="dashApplied">0</strong></div>
+            <div class="status s-warning">Pending <strong id="dashPending">0</strong></div>
+            <div class="status s-danger">Rejected <strong id="dashRejected">0</strong></div>
+          </div>
+          <div class="progress"><div id="profileProgress"></div></div>
+        </div>
+      </section>
+
+      <section id="profileView" class="card section hidden">
+        <h3>Profile & Job Preferences</h3>
+        <form id="profileForm">
+          <div class="row">
+            <input id="fullName" placeholder="Full Name" required />
+            <input id="email" type="email" placeholder="Email" required />
+          </div>
+          <div class="row">
+            <input id="phone" placeholder="Phone" />
+            <input id="linkedin" placeholder="LinkedIn URL" />
+          </div>
+          <div class="row">
+            <input id="github" placeholder="GitHub URL" />
+            <input id="portfolio" placeholder="Portfolio URL" />
+          </div>
+          <div class="row">
+            <input id="preferredRole" placeholder="Preferred Role" required />
+            <input id="skills" placeholder="Skills comma separated" required />
+          </div>
+          <div class="row">
+            <input id="preferredLocation" placeholder="Preferred Location" required />
+            <input id="nearbyCities" placeholder="Nearby Cities" />
+          </div>
+          <div class="row">
+            <input id="experience" placeholder="Experience (e.g. 2 years)" />
+            <input id="expectedSalary" placeholder="Expected Salary (e.g. 8 LPA)" />
+          </div>
+          <div class="row">
+            <select id="workType">
+              <option>Remote</option><option>Hybrid</option><option>On-site</option>
+            </select>
+            <select id="jobType">
+              <option>Full-time</option><option>Part-time</option><option>Internship</option><option>Contract</option>
+            </select>
+          </div>
+          <div class="row">
+            <input id="noticePeriod" placeholder="Notice Period" />
+            <label class="switch card" style="padding:12px 14px">
+              <input id="autoApplyToggle" type="checkbox" />
+              <span>Enable Auto Apply Mode</span>
+            </label>
+          </div>
+          <button class="btn" type="submit">Save Profile</button>
+        </form>
+      </section>
+
+      <section id="resumeView" class="card section hidden">
+        <h3>Resume Upload</h3>
+        <div class="file-box">
+          <div>
+            <div id="resumeName">No resume uploaded</div>
+            <div class="mini">Upload PDF or DOCX only.</div>
+          </div>
+          <button id="removeResumeBtn" class="btn secondary small">Remove</button>
+        </div>
+        <div class="divider"></div>
+        <input id="resumeInput" type="file" accept=".pdf,.docx" />
+        <p class="mini" style="margin-top:10px">Only file name and metadata are stored locally.</p>
+      </section>
+
+      <section id="jobsView" class="card section hidden">
+        <div class="topbar" style="margin:0 0 14px">
+          <div>
+            <h3 style="margin:0">Matched Jobs</h3>
+            <div class="mini">Jobs are mocked locally, but filtered like an AI matcher.</div>
+          </div>
+          <span class="status s-info" id="matchCount">0 matches</span>
+        </div>
+        <div id="jobsList" class="job-grid"></div>
+      </section>
+
+      <section id="trackingView" class="card section hidden">
+        <h3>Application Tracking</h3>
+        <div class="grid" style="gap:14px">
+          <div class="card widget" style="grid-column:span 4">
+            <h3 style="margin:0 0 10px;font-size:16px">Applied</h3>
+            <div id="appliedList"></div>
+          </div>
+          <div class="card widget" style="grid-column:span 4">
+            <h3 style="margin:0 0 10px;font-size:16px">Pending</h3>
+            <div id="pendingList"></div>
+          </div>
+          <div class="card widget" style="grid-column:span 4">
+            <h3 style="margin:0 0 10px;font-size:16px">Rejected</h3>
+            <div id="rejectedList"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const LS = {
+      users:'aj_users',
+      session:'aj_session',
+      profile:'aj_profile',
+      resume:'aj_resume',
+      apps:'aj_apps',
+      auto:'aj_auto',
+      lastAuto:'aj_last_auto'
+    };
+
+    const jobs = [
+      {id:1,title:'Frontend Developer',company:'NovaTech',location:'Delhi',skills:['html','css','javascript','react'],salary:9,type:'Full-time',work:'Hybrid'},
+      {id:2,title:'AI Content Analyst',company:'ByteBloom',location:'Remote',skills:['prompting','research','python'],salary:12,type:'Contract',work:'Remote'},
+      {id:3,title:'JavaScript Engineer',company:'Crest Labs',location:'Meerut',skills:['javascript','typescript','api'],salary:8,type:'Full-time',work:'On-site'},
+      {id:4,title:'UI/UX Designer',company:'PixelMint',location:'Noida',skills:['figma','ui','ux','css'],salary:7,type:'Full-time',work:'Hybrid'},
+      {id:5,title:'Salesforce Admin',company:'CloudPilot',location:'Remote',skills:['salesforce','crm','automation'],salary:14,type:'Full-time',work:'Remote'},
+      {id:6,title:'Data Associate',company:'DataNest',location:'Lucknow',skills:['excel','sql','analysis'],salary:6,type:'Internship',work:'On-site'},
+      {id:7,title:'MERN Developer',company:'FusionEdge',location:'Ghaziabad',skills:['mongodb','express','react','node','javascript'],salary:11,type:'Full-time',work:'Hybrid'},
+      {id:8,title:'Python Developer',company:'ZenCode',location:'Remote',skills:['python','django','flask'],salary:10,type:'Full-time',work:'Remote'}
+    ];
+
+    const $ = s => document.querySelector(s);
+    const $$ = s => [...document.querySelectorAll(s)];
+    const state = { user:null, profile:{}, resume:null, apps:[] };
+
+    function loadJSON(key, fallback){
+      try{return JSON.parse(localStorage.getItem(key)) ?? fallback}catch{return fallback}
+    }
+    function saveJSON(key,val){localStorage.setItem(key,JSON.stringify(val))}
+    function toast(msg){
+      const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+      clearTimeout(window._t); window._t=setTimeout(()=>el.classList.remove('show'),2400);
+    }
+    function setSession(user){localStorage.setItem(LS.session, JSON.stringify(user))}
+    function getSession(){return loadJSON(LS.session, null)}
+    function calcProfileCompletion(p){
+      const fields = ['fullName','email','phone','linkedin','github','portfolio','preferredRole','skills','preferredLocation','nearbyCities','experience','expectedSalary','workType','jobType','noticePeriod'];
+      const filled = fields.filter(k => String(p[k]||'').trim()).length + (p.autoApply ? 1 : 0);
+      return Math.round((filled / 16) * 100);
+    }
+    function parseSalary(s){
+      const n = String(s||'').toLowerCase().replace(/[^0-9.]/g,'');
+      return parseFloat(n || '0');
+    }
+    function getProfile(){return loadJSON(LS.profile,{autoApply:false})}
+    function getApps(){return loadJSON(LS.apps,[])}
+    function getResume(){return loadJSON(LS.resume,null)}
+    function getMatches(){
+      const p = state.profile;
+      const skills = (p.skills||'').toLowerCase().split(',').map(x=>x.trim()).filter(Boolean);
+      const locs = [p.preferredLocation, p.nearbyCities].join(',').toLowerCase();
+      const role = (p.preferredRole||'').toLowerCase();
+      const salary = parseSalary(p.expectedSalary);
+      return jobs.filter(j=>{
+        const okRole = !role || j.title.toLowerCase().includes(role) || j.skills.join(' ').toLowerCase().includes(role);
+        const okLoc = !locs || j.location.toLowerCase().includes(p.preferredLocation?.toLowerCase()||'') || (p.nearbyCities||'').toLowerCase().split(',').some(c=>c.trim() && j.location.toLowerCase().includes(c.trim()));
+        const okSkills = !skills.length || skills.some(s => j.skills.includes(s));
+        const okSalary = !salary || j.salary >= salary || j.salary >= Math.max(5, salary - 5);
+        return okRole && okLoc && okSkills && okSalary;
+      }).map(j=>{
+        const score = [
+          (p.preferredRole && j.title.toLowerCase().includes(p.preferredRole.toLowerCase())) ? 35 : 0,
+          skills.filter(s => j.skills.includes(s)).length * 15,
+          (p.preferredLocation && j.location.toLowerCase().includes(p.preferredLocation.toLowerCase())) ? 20 : 0,
+          (!salary || j.salary >= salary) ? 20 : 5
+        ].reduce((a,b)=>a+b,0);
+        return {...j, score:Math.min(100,score)};
+      }).sort((a,b)=>b.score-a.score);
+    }
+    function renderAuth(){
+      const session = getSession();
+      if(session){
+        state.user=session;
+        $('#authView').classList.add('hidden');
+        $('#appView').classList.remove('hidden');
+        $('#userLabel').textContent = session.name || session.email;
+        loadAppData();
+      } else {
+        $('#authView').classList.remove('hidden');
+        $('#appView').classList.add('hidden');
+      }
+    }
+    function loadAppData(){
+      state.profile = getProfile();
+      state.resume = getResume();
+      state.apps = getApps();
+      $('#autoStatus').textContent = state.profile.autoApply ? 'On' : 'Off';
+      $('#dashAuto').textContent = state.profile.autoApply ? 'ON' : 'OFF';
+      $('#autoApplyToggle').checked = !!state.profile.autoApply;
+      ['fullName','email','phone','linkedin','github','portfolio','preferredRole','skills','preferredLocation','nearbyCities','experience','expectedSalary','noticePeriod'].forEach(id=>{
+        if($('#'+id)) $('#'+id).value = state.profile[id] || '';
+      });
+      if($('#workType')) $('#workType').value = state.profile.workType || 'Remote';
+      if($('#jobType')) $('#jobType').value = state.profile.jobType || 'Full-time';
+      $('#resumeName').textContent = state.resume ? state.resume.name : 'No resume uploaded';
+      updateDashboard();
+      renderJobs();
+      renderTracking();
+    }
+    function updateDashboard(){
+      const completion = calcProfileCompletion(state.profile);
+      $('#kpiProfile').textContent = completion + '%';
+      $('#kpiResume').textContent = state.resume ? 'Yes' : 'No';
+      $('#kpiMatched').textContent = getMatches().length;
+      $('#kpiApplied').textContent = state.apps.filter(a=>a.status==='applied').length;
+      $('#kpiProfileText').textContent = completion > 80 ? 'Profile is strong for auto-apply.' : 'Add more details to improve matching.';
+      $('#profileProgress').style.width = completion + '%';
+      $('#dashApplied').textContent = state.apps.filter(a=>a.status==='applied').length;
+      $('#dashPending').textContent = state.apps.filter(a=>a.status==='pending').length;
+      $('#dashRejected').textContent = state.apps.filter(a=>a.status==='rejected').length;
+      $('#matchCount').textContent = getMatches().length + ' matches';
+    }
+    function renderJobs(){
+      const list = $('#jobsList');
+      const matches = getMatches();
+      list.innerHTML = matches.length ? matches.map(j=>`
+        <div class="job-card">
+          <div class="job-head">
+            <div>
+              <h4 style="margin:0 0 6px">${j.title}</h4>
+              <div class="meta">${j.company} • ${j.location}</div>
             </div>
-        </aside>
+            <span class="badge">Match ${j.score}%</span>
+          </div>
+          <div class="tags">
+            ${j.skills.slice(0,5).map(s=>`<span class="tag">${s}</span>`).join('')}
+          </div>
+          <div class="meta">Salary: ₹${j.salary} LPA • Type: ${j.type} • Work: ${j.work}</div>
+          <div class="divider"></div>
+          <div class="flex">
+            <button class="btn small" onclick="applyJob(${j.id})">Apply</button>
+            <button class="btn secondary small" onclick="setPending(${j.id})">Pending</button>
+            <button class="btn secondary small" onclick="setRejected(${j.id})">Reject</button>
+          </div>
+        </div>
+      `).join('') : '<div class="mini">No jobs matched. Update preferences for better results.</div>';
+      updateDashboard();
+    }
+    function renderTracking(){
+      const by = status => state.apps.filter(a=>a.status===status);
+      const render = arr => arr.length ? arr.map(a=>`
+        <div class="job-card" style="margin-bottom:10px">
+          <strong>${a.title}</strong>
+          <div class="meta">${a.company} • ${a.location}</div>
+          <div class="mini">Applied: ${new Date(a.date).toLocaleString()}</div>
+        </div>
+      `).join('') : '<div class="mini">No records.</div>';
+      $('#appliedList').innerHTML = render(by('applied'));
+      $('#pendingList').innerHTML = render(by('pending'));
+      $('#rejectedList').innerHTML = render(by('rejected'));
+      updateDashboard();
+    }
+    window.applyJob = function(id){
+      const j = jobs.find(x=>x.id===id); if(!j) return;
+      if(state.apps.some(a=>a.jobId===id && a.status==='applied')) return toast('Already applied.');
+      state.apps = state.apps.filter(a=>a.jobId!==id);
+      state.apps.unshift({jobId:id,title:j.title,company:j.company,location:j.location,status:'applied',date:Date.now()});
+      saveJSON(LS.apps,state.apps);
+      toast('Applied successfully.');
+      renderTracking(); renderJobs();
+    }
+    window.setPending = function(id){
+      const j = jobs.find(x=>x.id===id); if(!j) return;
+      state.apps = state.apps.filter(a=>a.jobId!==id);
+      state.apps.unshift({jobId:id,title:j.title,company:j.company,location:j.location,status:'pending',date:Date.now()});
+      saveJSON(LS.apps,state.apps);
+      toast('Moved to pending.');
+      renderTracking(); renderJobs();
+    }
+    window.setRejected = function(id){
+      const j = jobs.find(x=>x.id===id); if(!j) return;
+      state.apps = state.apps.filter(a=>a.jobId!==id);
+      state.apps.unshift({jobId:id,title:j.title,company:j.company,location:j.location,status:'rejected',date:Date.now()});
+      saveJSON(LS.apps,state.apps);
+      toast('Marked rejected.');
+      renderTracking(); renderJobs();
+    }
+    function autoApplyCycle(){
+      state.profile = getProfile();
+      if(!state.profile.autoApply) return;
+      const last = parseInt(localStorage.getItem(LS.lastAuto) || '0', 10);
+      if(last && Date.now() - last < 2 * 60 * 60 * 1000) return;
+      const matches = getMatches().filter(j => !state.apps.some(a => a.jobId===j.id && a.status==='applied'));
+      if(matches[0]){
+        applyJob(matches[0].id);
+        localStorage.setItem(LS.lastAuto, String(Date.now()));
+        toast('Auto-applied to top match.');
+      }
+    }
+    function switchView(view){
+      $$('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+      ['dashboard','profile','resume','jobs','tracking'].forEach(v => $('#'+v+'View').classList.toggle('hidden', v!==view));
+      if(view==='dashboard') updateDashboard();
+    }
 
-        <!-- MAIN CONTENT -->
-        <main class="main-content" id="mainContent">
-            <!-- Dashboard Page -->
-            <div class="page active" id="page-dashboard">
-                <h2 class="page-title">Dashboard</h2>
-                <p class="page-subtitle">Overview of your job search activity</p>
-                <div class="stats-grid" id="dashboardStats"></div>
-                <div class="card" style="margin-top:16px;">
-                    <div class="card-header"><h3>📈 Recent Activity</h3></div>
-                    <div id="recentActivity" style="color:var(--text-secondary);font-size:0.88rem;">Loading...</div>
-                </div>
-            </div>
+    $('#tabLogin').onclick = ()=>{ $('#tabLogin').classList.add('active'); $('#tabSignup').classList.remove('active'); $('#loginForm').classList.remove('hidden'); $('#signupForm').classList.add('hidden'); };
+    $('#tabSignup').onclick = ()=>{ $('#tabSignup').classList.add('active'); $('#tabLogin').classList.remove('active'); $('#signupForm').classList.remove('hidden'); $('#loginForm').classList.add('hidden'); };
 
-            <!-- Jobs Page -->
-            <div class="page" id="page-jobs">
-                <h2 class="page-title">💼 Find Matching Jobs</h2>
-                <p class="page-subtitle">Jobs matched to your profile & preferences</p>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
-                    <button class="btn-sm btn-accent" id="refreshJobsBtn">🔄 Refresh Matches</button>
-                </div>
-                <div class="jobs-grid" id="jobsGrid"></div>
-                <div id="jobsLoading" style="text-align:center;padding:30px;display:none;"><span class="spinner"></span> Matching jobs...</div>
-                <div id="noJobsMsg" style="text-align:center;padding:30px;color:var(--text-muted);display:none;">No matching jobs found. Please complete your profile preferences first!</div>
-            </div>
+    $('#signupForm').onsubmit = e=>{
+      e.preventDefault();
+      const users = loadJSON(LS.users, []);
+      const email = $('#signupEmail').value.trim().toLowerCase();
+      if(users.some(u=>u.email===email)) return toast('Account already exists.');
+      users.push({name:$('#signupName').value.trim(), email, password:$('#signupPassword').value});
+      saveJSON(LS.users, users);
+      setSession({name:$('#signupName').value.trim(), email});
+      toast('Signup successful.');
+      renderAuth();
+    };
 
-            <!-- Applications Page -->
-            <div class="page" id="page-applications">
-                <h2 class="page-title">📋 My Applications</h2>
-                <p class="page-subtitle">Track all your job applications</p>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
-                    <button class="btn-sm btn-accent active-filter" data-filter="all">All</button>
-                    <button class="btn-sm btn-outline" data-filter="applied">✅ Applied</button>
-                    <button class="btn-sm btn-outline" data-filter="pending">⏳ Pending</button>
-                    <button class="btn-sm btn-outline" data-filter="rejected">❌ Rejected</button>
-                </div>
-                <div class="table-wrap card">
-                    <table>
-                        <thead><tr><th>Job Role</th><th>Company</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
-                        <tbody id="applicationsTableBody"></tbody>
-                    </table>
-                    <div id="noAppsMsg" style="text-align:center;padding:20px;color:var(--text-muted);display:none;">No applications yet. Start applying to jobs!</div>
-                </div>
-            </div>
+    $('#loginForm').onsubmit = e=>{
+      e.preventDefault();
+      const users = loadJSON(LS.users, []);
+      const email = $('#loginEmail').value.trim().toLowerCase();
+      const pass = $('#loginPassword').value;
+      const user = users.find(u=>u.email===email && u.password===pass);
+      if(!user) return toast('Invalid credentials.');
+      setSession({name:user.name, email:user.email});
+      toast('Login successful.');
+      renderAuth();
+    };
 
-            <!-- Profile Page -->
-            <div class="page" id="page-profile">
-                <h2 class="page-title">👤 Profile & Preferences</h2>
-                <p class="page-subtitle">Manage your personal info and job preferences</p>
-                <form id="profileForm" class="card">
-                    <div class="form-grid">
-                        <div class="form-group"><label>Full Name</label><input type="text" id="profName" placeholder="John Doe"></div>
-                        <div class="form-group"><label>Email</label><input type="email" id="profEmail" placeholder="john@example.com"></div>
-                        <div class="form-group"><label>Phone</label><input type="tel" id="profPhone" placeholder="+91 98765 43210"></div>
-                        <div class="form-group"><label>LinkedIn URL</label><input type="url" id="profLinkedIn" placeholder="https://linkedin.com/in/..."></div>
-                        <div class="form-group"><label>GitHub URL</label><input type="url" id="profGitHub" placeholder="https://github.com/..."></div>
-                        <div class="form-group"><label>Portfolio URL</label><input type="url" id="profPortfolio" placeholder="https://..."></div>
-                        <div class="form-group"><label>Preferred Role</label><input type="text" id="profRole" placeholder="e.g. Frontend Developer"></div>
-                        <div class="form-group"><label>Skills (comma-separated)</label><input type="text" id="profSkills" placeholder="React, JavaScript, CSS"></div>
-                        <div class="form-group"><label>Preferred Location</label><input type="text" id="profLocation" placeholder="e.g. Bangalore"></div>
-                        <div class="form-group"><label>Nearby Cities (comma-separated)</label><input type="text" id="profNearby" placeholder="Mumbai, Pune"></div>
-                        <div class="form-group"><label>Experience Level</label>
-                            <select id="profExperience"><option value="">Any</option><option value="entry">Entry Level</option><option value="mid">Mid Level</option><option value="senior">Senior</option><option value="lead">Lead / Manager</option></select>
-                        </div>
-                        <div class="form-group"><label>Expected Salary (₹ LPA CTC)</label><input type="number" id="profSalary" placeholder="e.g. 1200000"></div>
-                        <div class="form-group"><label>Work Type</label>
-                            <select id="profWorkType"><option value="">Any</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="onsite">On-site</option></select>
-                        </div>
-                        <div class="form-group"><label>Job Type</label>
-                            <select id="profJobType"><option value="">Any</option><option value="full-time">Full-Time</option><option value="part-time">Part-Time</option><option value="contract">Contract</option><option value="freelance">Freelance</option></select>
-                        </div>
-                        <div class="form-group"><label>Notice Period</label>
-                            <select id="profNotice"><option value="">Any</option><option value="immediate">Immediate</option><option value="15days">15 Days</option><option value="30days">30 Days</option><option value="60days">60+ Days</option></select>
-                        </div>
-                        <div class="form-group full">
-                            <label>⚡ Auto Apply Mode</label>
-                            <div class="toggle-wrap">
-                                <label class="toggle-switch"><input type="checkbox" id="autoApplyToggle"><span class="toggle-slider"></span></label>
-                                <span style="font-size:0.85rem;color:var(--text-secondary);">Automatically apply to high-match jobs</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="margin-top:18px;padding:12px 28px;">💾 Save Profile</button>
-                </form>
-            </div>
+    $('#logoutBtn').onclick = ()=>{
+      localStorage.removeItem(LS.session);
+      toast('Logged out.');
+      renderAuth();
+    };
 
-            <!-- Resume Page -->
-            <div class="page" id="page-resume">
-                <h2 class="page-title">📄 Resume Upload</h2>
-                <p class="page-subtitle">Upload your resume for auto-matching</p>
-                <div class="card">
-                    <div class="upload-zone" id="uploadZone">
-                        <div class="upload-icon">📁</div>
-                        <p style="font-weight:600;">Click to upload or drag & drop</p>
-                        <p style="font-size:0.8rem;color:var(--text-muted);">Supported: PDF, DOCX (Max 2MB)</p>
-                        <input type="file" id="resumeFileInput" accept=".pdf,.docx">
-                    </div>
-                    <div id="resumePreview" style="margin-top:12px;"></div>
-                    <button class="btn-sm btn-danger-sm" id="removeResumeBtn" style="margin-top:10px;display:none;">🗑 Remove Resume</button>
-                </div>
-            </div>
-        </main>
-    </div>
+    $('#profileForm').onsubmit = e=>{
+      e.preventDefault();
+      const p = {
+        fullName:$('#fullName').value.trim(),
+        email:$('#email').value.trim(),
+        phone:$('#phone').value.trim(),
+        linkedin:$('#linkedin').value.trim(),
+        github:$('#github').value.trim(),
+        portfolio:$('#portfolio').value.trim(),
+        preferredRole:$('#preferredRole').value.trim(),
+        skills:$('#skills').value.trim(),
+        preferredLocation:$('#preferredLocation').value.trim(),
+        nearbyCities:$('#nearbyCities').value.trim(),
+        experience:$('#experience').value.trim(),
+        expectedSalary:$('#expectedSalary').value.trim(),
+        workType:$('#workType').value,
+        jobType:$('#jobType').value,
+        noticePeriod:$('#noticePeriod').value.trim(),
+        autoApply:$('#autoApplyToggle').checked
+      };
+      if(!p.fullName || !p.email || !p.preferredRole || !p.skills || !p.preferredLocation) return toast('Please fill required fields.');
+      state.profile = p;
+      saveJSON(LS.profile, p);
+      $('#autoStatus').textContent = p.autoApply ? 'On' : 'Off';
+      $('#dashAuto').textContent = p.autoApply ? 'ON' : 'OFF';
+      toast('Profile saved.');
+      updateDashboard(); renderJobs();
+      autoApplyCycle();
+    };
 
-    <!-- ==================== TOAST CONTAINER ==================== -->
-    <div class="toast-container" id="toastContainer"></div>
+    $('#autoApplyToggle').onchange = ()=>{
+      state.profile.autoApply = $('#autoApplyToggle').checked;
+      saveJSON(LS.profile, state.profile);
+      $('#autoStatus').textContent = state.profile.autoApply ? 'On' : 'Off';
+      $('#dashAuto').textContent = state.profile.autoApply ? 'ON' : 'OFF';
+      toast('Auto apply updated.');
+      autoApplyCycle();
+    };
 
-    <!-- Google Identity Services script (loaded asynchronously) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    $('#resumeInput').onchange = e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const ok = /\.(pdf|docx)$/i.test(file.name);
+      if(!ok) return toast('Only PDF or DOCX allowed.');
+      state.resume = {name:file.name,size:file.size,type:file.type||'unknown',uploadedAt:Date.now()};
+      saveJSON(LS.resume, state.resume);
+      $('#resumeName').textContent = file.name;
+      $('#kpiResume').textContent = 'Yes';
+      toast('Resume uploaded.');
+      updateDashboard();
+    };
 
-    <!-- ==================== INTERNAL JAVASCRIPT ==================== -->
-    <script>
-        (function() {
-            // ============ DOM REFERENCES ============
-            const loginOverlay = document.getElementById('loginOverlay');
-            const appContainer = document.getElementById('appContainer');
-            const authForm = document.getElementById('authForm');
-            const authName = document.getElementById('authName');
-            const authEmail = document.getElementById('authEmail');
-            const authPassword = document.getElementById('authPassword');
-            const authSubmitBtn = document.getElementById('authSubmitBtn');
-            const authToggleBtn = document.getElementById('authToggleBtn');
-            const loginSubtitle = document.getElementById('loginSubtitle');
-            const loginToggleText = document.getElementById('loginToggleText');
-            const toggleLink = document.getElementById('toggleLink');
-            const sidebarAvatar = document.getElementById('sidebarAvatar');
-            const sidebarName = document.getElementById('sidebarName');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const toastContainer = document.getElementById('toastContainer');
-            const uploadZone = document.getElementById('uploadZone');
-            const resumeFileInput = document.getElementById('resumeFileInput');
-            const resumePreview = document.getElementById('resumePreview');
-            const removeResumeBtn = document.getElementById('removeResumeBtn');
-            const profileForm = document.getElementById('profileForm');
-            const autoApplyToggle = document.getElementById('autoApplyToggle');
-            const jobsGrid = document.getElementById('jobsGrid');
-            const jobsLoading = document.getElementById('jobsLoading');
-            const noJobsMsg = document.getElementById('noJobsMsg');
-            const applicationsTableBody = document.getElementById('applicationsTableBody');
-            const noAppsMsg = document.getElementById('noAppsMsg');
-            const dashboardStats = document.getElementById('dashboardStats');
-            const recentActivity = document.getElementById('recentActivity');
-            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-            const normalAuth = document.getElementById('normalAuth');
-            const forgotSection = document.getElementById('forgotSection');
-            const forgotEmail = document.getElementById('forgotEmail');
-            const forgotNewPassword = document.getElementById('forgotNewPassword');
-            const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-            const backToLoginBtn = document.getElementById('backToLoginBtn');
-            const googleSignInBtn = document.getElementById('googleSignInBtn');
+    $('#removeResumeBtn').onclick = ()=>{
+      localStorage.removeItem(LS.resume);
+      state.resume = null;
+      $('#resumeInput').value = '';
+      $('#resumeName').textContent = 'No resume uploaded';
+      toast('Resume removed.');
+      updateDashboard();
+    };
 
-            // ============ STATE ============
-            let isSignupMode = false;
-            let currentUser = null;
-            let allJobs = [];
-            let applications = [];
-            let currentAppFilter = 'all';
+    $('#manualRefreshBtn').onclick = ()=>{
+      toast('Refreshing matches...');
+      renderJobs();
+      autoApplyCycle();
+    };
 
-            // ============ MOCK JOB DATA (Indian salaries in INR, CTC based) ============
-            function generateMockJobs() {
-                return [
-                    { id: 'j1', role: 'Frontend Developer', company: 'TechVista Inc.', location: 'Bangalore',
-                        skills: ['React', 'JavaScript', 'CSS', 'HTML', 'TypeScript'], salary: 1200000,
-                        workType: 'hybrid', jobType: 'full-time', experience: 'mid', posted: '2 days ago',
-                        description: 'Build beautiful user interfaces for our SaaS platform.' },
-                    { id: 'j2', role: 'Senior React Developer', company: 'CloudNine Solutions', location: 'Pune',
-                        skills: ['React', 'TypeScript', 'Node.js', 'GraphQL', 'AWS'], salary: 2200000,
-                        workType: 'remote', jobType: 'full-time', experience: 'senior', posted: '1 day ago',
-                        description: 'Lead frontend architecture for enterprise applications.' },
-                    { id: 'j3', role: 'Backend Engineer', company: 'DataFlow Corp', location: 'Mumbai',
-                        skills: ['Python', 'Django', 'PostgreSQL', 'Redis', 'Docker'], salary: 1500000,
-                        workType: 'onsite', jobType: 'full-time', experience: 'mid', posted: '3 days ago',
-                        description: 'Design and build scalable backend services.' },
-                    { id: 'j4', role: 'Full Stack Developer', company: 'StartupHub', location: 'Delhi',
-                        skills: ['JavaScript', 'React', 'Node.js', 'MongoDB', 'Express'], salary: 1300000,
-                        workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '5 days ago',
-                        description: 'Own features end-to-end in a fast-paced startup.' },
-                    { id: 'j5', role: 'Data Scientist', company: 'AI Innovations', location: 'Bangalore',
-                        skills: ['Python', 'Machine Learning', 'TensorFlow', 'SQL', 'Statistics'], salary: 2500000,
-                        workType: 'hybrid', jobType: 'full-time', experience: 'senior', posted: '1 week ago',
-                        description: 'Build ML models to drive product insights.' },
-                    { id: 'j6', role: 'DevOps Engineer', company: 'CloudScale', location: 'Hyderabad',
-                        skills: ['AWS', 'Kubernetes', 'Docker', 'Terraform', 'CI/CD'], salary: 2000000,
-                        workType: 'remote', jobType: 'full-time', experience: 'senior', posted: '4 days ago',
-                        description: 'Manage cloud infrastructure at scale.' },
-                    { id: 'j7', role: 'UI/UX Designer', company: 'DesignCraft', location: 'Mumbai',
-                        skills: ['Figma', 'Sketch', 'User Research', 'Prototyping', 'CSS'], salary: 1100000,
-                        workType: 'hybrid', jobType: 'full-time', experience: 'mid', posted: '6 days ago',
-                        description: 'Create delightful user experiences for web & mobile.' },
-                    { id: 'j8', role: 'Junior Frontend Developer', company: 'WebWizards', location: 'Pune',
-                        skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Git'], salary: 600000, workType: 'onsite',
-                        jobType: 'full-time', experience: 'entry', posted: '2 days ago',
-                        description: 'Great opportunity to grow your frontend skills.' },
-                    { id: 'j9', role: 'React Native Developer', company: 'MobileFirst', location: 'Bangalore',
-                        skills: ['React Native', 'JavaScript', 'TypeScript', 'iOS', 'Android'], salary: 1600000,
-                        workType: 'remote', jobType: 'contract', experience: 'mid', posted: '3 days ago',
-                        description: 'Build cross-platform mobile apps.' },
-                    { id: 'j10', role: 'Software Engineer', company: 'Google', location: 'Bangalore',
-                        skills: ['Java', 'Python', 'C++', 'Algorithms', 'System Design'], salary: 3500000,
-                        workType: 'hybrid', jobType: 'full-time', experience: 'senior', posted: '1 day ago',
-                        description: 'Work on core search infrastructure.' },
-                    { id: 'j11', role: 'Product Manager', company: 'InnovateTech', location: 'Delhi',
-                        skills: ['Product Strategy', 'Analytics', 'Agile', 'SQL', 'UX'], salary: 2800000,
-                        workType: 'hybrid', jobType: 'full-time', experience: 'senior', posted: '5 days ago',
-                        description: 'Drive product vision and execution.' },
-                    { id: 'j12', role: 'QA Engineer', company: 'QualityFirst', location: 'Hyderabad',
-                        skills: ['Selenium', 'Cypress', 'JavaScript', 'Test Automation', 'CI/CD'], salary: 900000,
-                        workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '1 week ago',
-                        description: 'Ensure product quality through automated testing.' },
-                    { id: 'j13', role: 'Frontend Developer', company: 'DesignSystems Co', location: 'Bangalore',
-                        skills: ['React', 'Storybook', 'CSS-in-JS', 'TypeScript', 'Accessibility'], salary: 1400000,
-                        workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '2 days ago',
-                        description: 'Build and maintain design system components.' },
-                    { id: 'j14', role: 'Python Developer', company: 'DataPipe', location: 'Chennai',
-                        skills: ['Python', 'FastAPI', 'PostgreSQL', 'Docker', 'Redis'], salary: 1100000,
-                        workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '4 days ago',
-                        description: 'Develop data processing pipelines.' },
-                    { id: 'j15', role: 'Engineering Manager', company: 'BigTech Corp', location: 'Mumbai',
-                        skills: ['Leadership', 'System Design', 'Java', 'Agile', 'Mentoring'], salary: 4000000,
-                        workType: 'hybrid', jobType: 'full-time', experience: 'lead', posted: '1 week ago',
-                        description: 'Lead a team of 8 engineers.' },
-                ];
-            }
+    $$('.nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 
-            // ============ LOCAL STORAGE HELPERS ============
-            function lsGet(key, fallback = null) {
-                try { return JSON.parse(localStorage.getItem('jobauto_' + key)) || fallback; } catch { return fallback; }
-            }
-            function lsSet(key, value) { try { localStorage.setItem('jobauto_' + key, JSON.stringify(value)); } catch(e) { showToast('Storage full!','warning'); } }
-            function lsRemove(key) { localStorage.removeItem('jobauto_' + key); }
-
-            // ============ TOAST NOTIFICATIONS ============
-            function showToast(message, type = 'info') {
-                const toast = document.createElement('div');
-                toast.className = `toast toast-${type}`;
-                toast.textContent = message;
-                toastContainer.appendChild(toast);
-                setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3000);
-            }
-
-            // ============ AUTHENTICATION ============
-            function checkAuth() {
-                const session = lsGet('session');
-                if (session && session.email) {
-                    currentUser = session;
-                    loginOverlay.classList.add('hidden');
-                    appContainer.style.display = 'flex';
-                    updateSidebarUser();
-                    loadAllData();
-                    navigateTo('dashboard');
-                    return true;
-                } else {
-                    loginOverlay.classList.remove('hidden');
-                    appContainer.style.display = 'none';
-                    currentUser = null;
-                    return false;
-                }
-            }
-            function updateSidebarUser() {
-                if(currentUser) {
-                    sidebarAvatar.textContent = (currentUser.name || currentUser.email)[0].toUpperCase();
-                    sidebarName.textContent = currentUser.name || currentUser.email.split('@')[0];
-                }
-            }
-            function setAuthMode(signup) {
-                isSignupMode = signup;
-                authName.style.display = signup ? 'block' : 'none';
-                authName.required = signup;
-                authSubmitBtn.textContent = signup ? 'Sign Up' : 'Sign In';
-                loginSubtitle.textContent = signup ? 'Create your account' : 'Sign in to your account';
-                authToggleBtn.textContent = signup ? 'Already have an account? Sign in' : 'Create an account';
-                loginToggleText.innerHTML = signup ? 'Already have an account? <span id="toggleLink">Sign in</span>' : 'Don\'t have an account? <span id="toggleLink">Sign up</span>';
-                const newToggleLink = document.getElementById('toggleLink');
-                if(newToggleLink) newToggleLink.addEventListener('click', ()=> setAuthMode(!isSignupMode));
-            }
-            // Forgot password UI toggle
-            function showForgotPassword() {
-                normalAuth.classList.add('hidden');
-                forgotSection.classList.add('active');
-            }
-            function hideForgotPassword() {
-                normalAuth.classList.remove('hidden');
-                forgotSection.classList.remove('active');
-                forgotEmail.value = '';
-                forgotNewPassword.value = '';
-            }
-            forgotPasswordLink.addEventListener('click', showForgotPassword);
-            backToLoginBtn.addEventListener('click', hideForgotPassword);
-
-            resetPasswordBtn.addEventListener('click', function() {
-                const email = forgotEmail.value.trim();
-                const newPassword = forgotNewPassword.value.trim();
-                if (!email || !newPassword || newPassword.length < 4) {
-                    showToast('Please enter a valid email and password (min 4 chars).', 'warning');
-                    return;
-                }
-                const users = lsGet('users', {});
-                if (!users[email]) {
-                    showToast('No account found with that email.', 'warning');
-                    return;
-                }
-                users[email].password = newPassword;
-                lsSet('users', users);
-                showToast('Password reset successful! Please login.', 'success');
-                hideForgotPassword();
-                authEmail.value = email;
-                authPassword.value = '';
-            });
-
-            // Normal auth form submit
-            authForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = authEmail.value.trim();
-                const password = authPassword.value.trim();
-                const name = authName.value.trim() || email.split('@')[0];
-                if (!email || !password) { showToast('Please fill all fields.','warning'); return; }
-                if (password.length < 4) { showToast('Password min 4 chars.','warning'); return; }
-                const users = lsGet('users', {});
-                if (isSignupMode) {
-                    if (users[email]) { showToast('Account already exists.','warning'); return; }
-                    users[email] = { name, email, password };
-                    lsSet('users', users);
-                    showToast('Account created! 🎉','success');
-                } else {
-                    if (!users[email]) { showToast('Account not found.','warning'); return; }
-                    if (users[email].password !== password) { showToast('Wrong password.','warning'); return; }
-                }
-                currentUser = { name: users[email]?.name || name, email };
-                lsSet('session', currentUser);
-                loginOverlay.classList.add('hidden');
-                appContainer.style.display = 'flex';
-                updateSidebarUser();
-                loadAllData();
-                navigateTo('dashboard');
-                authForm.reset();
-                setAuthMode(false);
-            });
-
-            authToggleBtn.addEventListener('click', () => setAuthMode(!isSignupMode));
-            toggleLink.addEventListener('click', () => setAuthMode(!isSignupMode));
-
-            // ============ GOOGLE SIGN-IN ============
-            // Replace with your actual Google Client ID. For local testing, you can use a placeholder.
-            const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'; // ⚠️ REPLACE ME
-
-            function initializeGoogleSignIn() {
-                if (typeof google === 'undefined' || !google.accounts) return;
-                google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
-                    callback: handleGoogleSignIn,
-                });
-                // You can render a button, but we already have a custom button, so we'll just trigger it manually.
-                googleSignInBtn.addEventListener('click', () => {
-                    google.accounts.id.prompt(); // shows One Tap UI
-                });
-            }
-
-            function handleGoogleSignIn(response) {
-                // Decode JWT token to get user info
-                const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                const googleUser = {
-                    name: payload.name,
-                    email: payload.email,
-                    picture: payload.picture,
-                };
-                // Save as session (no password needed)
-                currentUser = { name: googleUser.name, email: googleUser.email, google: true };
-                lsSet('session', currentUser);
-                // Also store in users if not exists (for record)
-                const users = lsGet('users', {});
-                if (!users[googleUser.email]) {
-                    users[googleUser.email] = { name: googleUser.name, email: googleUser.email, google: true };
-                    lsSet('users', users);
-                }
-                loginOverlay.classList.add('hidden');
-                appContainer.style.display = 'flex';
-                updateSidebarUser();
-                loadAllData();
-                navigateTo('dashboard');
-                showToast(`Welcome, ${googleUser.name}! 👋`, 'success');
-            }
-
-            // Initialize Google Sign-In after script loads
-            window.addEventListener('load', () => {
-                if (typeof google !== 'undefined' && google.accounts) {
-                    initializeGoogleSignIn();
-                } else {
-                    // Retry after a delay if script hasn't loaded
-                    setTimeout(() => {
-                        if (typeof google !== 'undefined' && google.accounts) initializeGoogleSignIn();
-                    }, 1000);
-                }
-            });
-
-            logoutBtn.addEventListener('click', function() {
-                lsRemove('session');
-                currentUser = null;
-                loginOverlay.classList.remove('hidden');
-                appContainer.style.display = 'none';
-                authForm.reset();
-                setAuthMode(false);
-                hideForgotPassword();
-                // Google sign-out if needed (optional)
-                if (typeof google !== 'undefined' && google.accounts) {
-                    google.accounts.id.disableAutoSelect();
-                }
-                showToast('Logged out.', 'info');
-            });
-
-            // ============ NAVIGATION ============
-            function navigateTo(pageName) {
-                document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-                const activeLink = document.querySelector(`.sidebar nav a[data-page="${pageName}"]`);
-                if(activeLink) activeLink.classList.add('active');
-                document.querySelectorAll('.main-content .page').forEach(p => p.classList.remove('active'));
-                const pageEl = document.getElementById('page-' + pageName);
-                if(pageEl) pageEl.classList.add('active');
-                refreshPage(pageName);
-            }
-            document.querySelectorAll('.sidebar nav a').forEach(link => {
-                link.addEventListener('click', function(e) { e.preventDefault(); navigateTo(this.dataset.page); });
-            });
-            function refreshPage(pageName) {
-                switch(pageName) {
-                    case 'dashboard': renderDashboard(); break;
-                    case 'jobs': renderJobs(); break;
-                    case 'applications': renderApplications(currentAppFilter); break;
-                    case 'profile': loadProfileForm(); break;
-                    case 'resume': renderResumePreview(); break;
-                }
-            }
-
-            // ============ LOAD DATA ============
-            function loadAllData() {
-                allJobs = lsGet('jobsData', generateMockJobs());
-                lsSet('jobsData', allJobs);
-                applications = lsGet('applications', []);
-                const profile = lsGet('profile', {});
-                if(autoApplyToggle) autoApplyToggle.checked = profile.autoApply || false;
-            }
-
-            // ============ DASHBOARD ============
-            function renderDashboard() {
-                const profile = lsGet('profile', {});
-                const resumeInfo = lsGet('resumeInfo', null);
-                const profileComplete = calculateProfileCompletion(profile, resumeInfo);
-                const matchedCount = getMatchedJobs().length;
-                const appliedCount = applications.filter(a => a.status === 'applied').length;
-                const pendingCount = applications.filter(a => a.status === 'pending').length;
-                dashboardStats.innerHTML = `
-                    <div class="stat-card"><div class="stat-value">${profileComplete}%</div><div class="stat-label">Profile Complete</div></div>
-                    <div class="stat-card"><div class="stat-value">${resumeInfo ? '✅' : '❌'}</div><div class="stat-label">Resume</div></div>
-                    <div class="stat-card"><div class="stat-value">${matchedCount}</div><div class="stat-label">Matched Jobs</div></div>
-                    <div class="stat-card"><div class="stat-value">${appliedCount}</div><div class="stat-label">Applied</div></div>
-                    <div class="stat-card"><div class="stat-value">${pendingCount}</div><div class="stat-label">Pending</div></div>
-                    <div class="stat-card"><div class="stat-value">${profile.autoApply ? '⚡ ON' : '⏸ OFF'}</div><div class="stat-label">Auto Apply</div></div>
-                `;
-                const recentApps = [...applications].sort((a,b)=> new Date(b.date) - new Date(a.date)).slice(0,5);
-                recentActivity.innerHTML = recentApps.length ? recentApps.map(a => `
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-glass);">
-                        <span><strong>${a.role}</strong> @ ${a.company}</span>
-                        <span class="badge ${a.status==='applied'?'badge-success':a.status==='pending'?'badge-warning':'badge-danger'}">${a.status}</span>
-                        <span style="font-size:0.75rem;color:var(--text-muted);">${a.date}</span>
-                    </div>`).join('') : '<p>No activity yet. <a href="#" style="color:var(--accent-2);" onclick="document.querySelector(\'.sidebar nav a[data-page=jobs]\').click();return false;">Browse jobs</a>.</p>';
-            }
-            function calculateProfileCompletion(profile, resumeInfo) {
-                let pts = 0; const total = 10;
-                if(profile.name) pts++; if(profile.email) pts++; if(profile.phone) pts++;
-                if(profile.role) pts++; if(profile.skills) pts++; if(profile.location) pts++;
-                if(profile.experience) pts++; if(profile.salary) pts++; if(profile.workType) pts++;
-                if(resumeInfo) pts++;
-                return Math.round((pts/total)*100);
-            }
-
-            // ============ JOB MATCHING (INR based) ============
-            function getMatchedJobs() {
-                const profile = lsGet('profile', {});
-                if(!profile.role && !profile.skills && !profile.location) return [];
-                return allJobs.filter(job => calculateMatchScore(job, profile) >= 30);
-            }
-            function calculateMatchScore(job, profile) {
-                let score = 0;
-                if(profile.role && job.role.toLowerCase().includes(profile.role.toLowerCase())) score += 30;
-                const nearby = profile.nearby ? profile.nearby.split(',').map(s=>s.trim().toLowerCase()) : [];
-                const locs = [profile.location?.toLowerCase(), ...nearby].filter(Boolean);
-                if(locs.some(l=> job.location.toLowerCase().includes(l))) score += 25;
-                if(profile.skills) {
-                    const uSkills = profile.skills.split(',').map(s=>s.trim().toLowerCase());
-                    const matched = uSkills.filter(us => job.skills.some(js => js.toLowerCase().includes(us)));
-                    score += Math.round((matched.length / Math.max(uSkills.length,1)) * 30);
-                }
-                if(profile.salary && job.salary) {
-                    if(job.salary >= +profile.salary) score += 15;
-                    else if(job.salary >= +profile.salary * 0.8) score += 8;
-                }
-                return Math.min(100, score);
-            }
-            function formatSalaryINR(salary) {
-                if(salary >= 10000000) return `₹${(salary/10000000).toFixed(2)} Cr`;
-                return `₹${(salary/100000).toFixed(1)} LPA`;
-            }
-            function renderJobs() {
-                jobsLoading.style.display = 'block';
-                jobsGrid.innerHTML = '';
-                noJobsMsg.style.display = 'none';
-                setTimeout(() => {
-                    jobsLoading.style.display = 'none';
-                    const profile = lsGet('profile', {});
-                    const displayJobs = getMatchedJobs().sort((a,b) => calculateMatchScore(b,profile) - calculateMatchScore(a,profile));
-                    if(displayJobs.length === 0) {
-                        noJobsMsg.style.display = 'block';
-                        return;
-                    }
-                    jobsGrid.innerHTML = displayJobs.map(job => {
-                        const score = calculateMatchScore(job, profile);
-                        const applied = applications.find(a => a.jobId === job.id && a.status === 'applied');
-                        const pending = applications.find(a => a.jobId === job.id && a.status === 'pending');
-                        return `<div class="job-card">
-                            <div style="display:flex;justify-content:space-between;">
-                                <div><div class="job-role">${job.role}</div><div class="job-company">🏢 ${job.company}</div></div>
-                                <span class="match-score ${score>=75?'match-high':score>=45?'match-medium':'match-low'}">🎯 ${score}%</span>
-                            </div>
-                            <div class="job-meta"><span>📍 ${job.location}</span><span>💻 ${job.workType}</span><span>🕐 ${job.jobType}</span><span>📅 ${job.posted}</span></div>
-                            <div style="font-size:0.82rem;color:var(--text-secondary);">💰 ${formatSalaryINR(job.salary)} CTC • ${job.experience}</div>
-                            <div class="job-skills">${job.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
-                            <p style="font-size:0.8rem;color:var(--text-muted);">${job.description}</p>
-                            <div style="display:flex;gap:8px;">
-                                ${applied ? '<button class="btn-sm btn-outline" disabled>✅ Applied</button>' :
-                                  pending ? '<button class="btn-sm btn-outline" disabled>⏳ Pending</button>' :
-                                  `<button class="btn-sm btn-accent apply-btn" data-job-id="${job.id}">🚀 Quick Apply</button>`}
-                                <button class="btn-sm btn-outline save-btn" data-job-id="${job.id}">📌 Save</button>
-                            </div>
-                        </div>`;
-                    }).join('');
-                    document.querySelectorAll('.apply-btn').forEach(b => b.addEventListener('click', function(){ applyToJob(this.dataset.jobId); }));
-                    document.querySelectorAll('.save-btn').forEach(b => b.addEventListener('click', function(){ saveJobForLater(this.dataset.jobId); }));
-                }, 400);
-            }
-
-            function applyToJob(jobId) {
-                const job = allJobs.find(j => j.id === jobId); if(!job) return;
-                if(applications.find(a=>a.jobId===jobId && a.status==='applied')) { showToast('Already applied!','info'); return; }
-                applications = applications.filter(a=> !(a.jobId===jobId && a.status==='pending'));
-                applications.push({ id:'app_'+Date.now(), jobId:job.id, role:job.role, company:job.company, location:job.location, status:'applied', date:new Date().toISOString().split('T')[0], autoApplied:false });
-                lsSet('applications', applications);
-                showToast(`✅ Applied to ${job.role}!`,'success');
-                renderJobs(); renderApplications(currentAppFilter); renderDashboard();
-            }
-            function saveJobForLater(jobId) {
-                const job = allJobs.find(j=>j.id===jobId); if(!job) return;
-                if(applications.find(a=>a.jobId===jobId)) { showToast('Already in list.','info'); return; }
-                applications.push({ id:'app_'+Date.now(), jobId:job.id, role:job.role, company:job.company, location:job.location, status:'pending', date:new Date().toISOString().split('T')[0], autoApplied:false });
-                lsSet('applications', applications);
-                showToast(`📌 Saved ${job.role}.`,'info');
-                renderJobs(); renderApplications(currentAppFilter); renderDashboard();
-            }
-            document.getElementById('refreshJobsBtn')?.addEventListener('click', renderJobs);
-
-            // ============ APPLICATIONS ============
-            function renderApplications(filter='all') {
-                currentAppFilter = filter;
-                let apps = [...applications];
-                if(filter!=='all') apps = apps.filter(a=>a.status===filter);
-                if(apps.length === 0) {
-                    applicationsTableBody.innerHTML = '';
-                    noAppsMsg.style.display = 'block';
-                } else {
-                    noAppsMsg.style.display = 'none';
-                    applicationsTableBody.innerHTML = apps.map(a=>`<tr>
-                        <td><strong>${a.role}</strong>${a.autoApplied?' <span class="badge badge-accent">🤖 Auto</span>':''}</td>
-                        <td>${a.company}</td>
-                        <td><span class="badge ${a.status==='applied'?'badge-success':a.status==='pending'?'badge-warning':'badge-danger'}">${a.status}</span></td>
-                        <td>${a.date}</td>
-                        <td>${a.status==='pending'?`<button class="btn-sm btn-accent" style="font-size:0.7rem;padding:4px 8px;" onclick="window._applyPending('${a.jobId}')">Apply Now</button>`:''}
-                        ${a.status!=='rejected'?`<button class="btn-sm btn-danger-sm" style="margin-left:4px;" onclick="window._rejectApp('${a.id}')">Reject</button>`:`<button class="btn-sm btn-outline" style="font-size:0.7rem;padding:4px 8px;" onclick="window._retryApp('${a.jobId}')">Retry</button>`}</td>
-                    </tr>`).join('');
-                }
-                document.querySelectorAll('#page-applications button[data-filter]').forEach(b=>{
-                    b.classList.remove('btn-accent','active-filter'); b.classList.add('btn-outline');
-                    if(b.dataset.filter===filter){ b.classList.remove('btn-outline'); b.classList.add('btn-accent','active-filter'); }
-                });
-            }
-            window._applyPending = (jobId) => applyToJob(jobId);
-            window._rejectApp = (appId) => {
-                const app = applications.find(a=>a.id===appId);
-                if(app){ app.status='rejected'; app.date=new Date().toISOString().split('T')[0]; lsSet('applications',applications); showToast('❌ Rejected.','warning'); renderApplications(currentAppFilter); renderJobs(); renderDashboard(); }
-            };
-            window._retryApp = (jobId) => applyToJob(jobId);
-            document.querySelectorAll('#page-applications button[data-filter]').forEach(b=>b.addEventListener('click', function(){ renderApplications(this.dataset.filter); }));
-
-            // ============ PROFILE ============
-            function loadProfileForm() {
-                const p = lsGet('profile', {});
-                document.getElementById('profName').value = p.name || '';
-                document.getElementById('profEmail').value = p.email || currentUser?.email || '';
-                document.getElementById('profPhone').value = p.phone || '';
-                document.getElementById('profLinkedIn').value = p.linkedIn || '';
-                document.getElementById('profGitHub').value = p.gitHub || '';
-                document.getElementById('profPortfolio').value = p.portfolio || '';
-                document.getElementById('profRole').value = p.role || '';
-                document.getElementById('profSkills').value = p.skills || '';
-                document.getElementById('profLocation').value = p.location || '';
-                document.getElementById('profNearby').value = p.nearby || '';
-                document.getElementById('profExperience').value = p.experience || '';
-                document.getElementById('profSalary').value = p.salary || '';
-                document.getElementById('profWorkType').value = p.workType || '';
-                document.getElementById('profJobType').value = p.jobType || '';
-                document.getElementById('profNotice').value = p.notice || '';
-                autoApplyToggle.checked = p.autoApply || false;
-            }
-            profileForm.addEventListener('submit', function(e){
-                e.preventDefault();
-                const profile = {
-                    name: document.getElementById('profName').value.trim(),
-                    email: document.getElementById('profEmail').value.trim(),
-                    phone: document.getElementById('profPhone').value.trim(),
-                    linkedIn: document.getElementById('profLinkedIn').value.trim(),
-                    gitHub: document.getElementById('profGitHub').value.trim(),
-                    portfolio: document.getElementById('profPortfolio').value.trim(),
-                    role: document.getElementById('profRole').value.trim(),
-                    skills: document.getElementById('profSkills').value.trim(),
-                    location: document.getElementById('profLocation').value.trim(),
-                    nearby: document.getElementById('profNearby').value.trim(),
-                    experience: document.getElementById('profExperience').value,
-                    salary: document.getElementById('profSalary').value,
-                    workType: document.getElementById('profWorkType').value,
-                    jobType: document.getElementById('profJobType').value,
-                    notice: document.getElementById('profNotice').value,
-                    autoApply: autoApplyToggle.checked,
-                };
-                lsSet('profile', profile);
-                if(profile.name && currentUser){ currentUser.name = profile.name; lsSet('session', currentUser); updateSidebarUser(); }
-                showToast('✅ Profile saved!', 'success');
-                renderDashboard();
-                if(profile.autoApply) runAutoApply();
-            });
-            autoApplyToggle.addEventListener('change', function(){
-                if(this.checked) { showToast('⚡ Auto Apply ON.','info'); runAutoApply(); } else showToast('Auto Apply OFF.','info');
-                const p = lsGet('profile',{});
-                p.autoApply = this.checked; lsSet('profile',p); renderDashboard();
-            });
-
-            function runAutoApply() {
-                const p = lsGet('profile',{});
-                if(!p.autoApply) return;
-                const matched = getMatchedJobs();
-                let count=0;
-                matched.forEach(job => {
-                    if(calculateMatchScore(job,p)>=70 && !applications.find(a=>a.jobId===job.id)){
-                        applications.push({ id:'app_'+Date.now()+Math.random(), jobId:job.id, role:job.role, company:job.company, location:job.location, status:'applied', date:new Date().toISOString().split('T')[0], autoApplied:true });
-                        count++;
-                    }
-                });
-                if(count>0){ lsSet('applications',applications); showToast(`🤖 Auto-applied to ${count} jobs!`,'success'); renderJobs(); renderApplications(currentAppFilter); renderDashboard(); }
-            }
-            setInterval(()=>{ if(currentUser && lsGet('profile',{}).autoApply) runAutoApply(); }, 60000);
-
-            // ============ RESUME ============
-            uploadZone.addEventListener('click', ()=>resumeFileInput.click());
-            resumeFileInput.addEventListener('change', handleResumeUpload);
-            uploadZone.addEventListener('dragover', e=>{e.preventDefault(); uploadZone.style.borderColor='var(--accent)';});
-            uploadZone.addEventListener('dragleave', ()=>{ uploadZone.style.borderColor='var(--border-glass)';});
-            uploadZone.addEventListener('drop', e=>{ e.preventDefault(); uploadZone.style.borderColor='var(--border-glass)'; if(e.dataTransfer.files.length){ resumeFileInput.files=e.dataTransfer.files; handleResumeUpload(); } });
-            function handleResumeUpload(){
-                const file = resumeFileInput.files[0]; if(!file) return;
-                if(!file.type.match(/(pdf|docx)/) && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx')){ showToast('PDF/DOCX only.','warning'); return; }
-                if(file.size>2*1024*1024){ showToast('Max 2MB.','warning'); return; }
-                lsSet('resumeInfo',{ name:file.name, size:(file.size/1024).toFixed(1)+' KB', uploadedAt:new Date().toISOString() });
-                showToast('✅ Resume uploaded!','success'); renderResumePreview(); renderDashboard();
-            }
-            function renderResumePreview(){
-                const info = lsGet('resumeInfo');
-                if(info){ resumePreview.innerHTML=`<div class="file-preview"><span class="file-icon">📄</span><div class="file-info"><div class="file-name">${info.name}</div><div class="file-size">${info.size} • ${new Date(info.uploadedAt).toLocaleDateString()}</div></div></div>`; removeResumeBtn.style.display='inline-block'; }
-                else { resumePreview.innerHTML='<p style="color:var(--text-muted);text-align:center;">No resume uploaded.</p>'; removeResumeBtn.style.display='none'; }
-            }
-            removeResumeBtn.addEventListener('click', ()=>{ lsRemove('resumeInfo'); resumeFileInput.value=''; showToast('Resume removed.','info'); renderResumePreview(); renderDashboard(); });
-
-            // ============ INIT ============
-            setAuthMode(false);
-            allJobs = generateMockJobs(); lsSet('jobsData', allJobs);
-            applications = lsGet('applications', []);
-            if(!checkAuth()){ loginOverlay.classList.remove('hidden'); appContainer.style.display='none'; }
-            renderResumePreview();
-            console.log('🚀 JobAuto AI - Google Sign-In, Forgot Password, INR salaries ready.');
-        })();
-    </script>
+    renderAuth();
+    setInterval(autoApplyCycle, 2 * 60 * 60 * 1000);
+    setInterval(()=>{ if(!$('#appView').classList.contains('hidden')) { state.profile = getProfile(); updateDashboard(); } }, 15000);
+  </script>
 </body>
 </html>
