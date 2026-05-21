@@ -2044,7 +2044,7 @@
                     <p style="color:var(--text-secondary);margin-bottom:20px;font-size:0.95rem">Enter your email address and we'll send you instructions to reset your password.</p>
                     <div class="form-group">
                         <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="forgotEmail" placeholder="you@example.com" required>
+                        <input type="email" class="form-control" id="forgotEmail" placeholder="you@example.com" required autocomplete="off">
                     </div>
                     <button class="btn btn-primary" style="width:100%" onclick="sendResetLink()">
                         <i class="fas fa-paper-plane"></i> Send Reset Link
@@ -2058,11 +2058,11 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="newPassword" placeholder="Min 6 characters" minlength="6">
+                        <input type="password" class="form-control" id="newPassword" placeholder="Min 6 characters" minlength="6" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirmNewPassword" placeholder="Re-enter password">
+                        <input type="password" class="form-control" id="confirmNewPassword" placeholder="Re-enter password" autocomplete="new-password">
                     </div>
                     <button class="btn btn-success" style="width:100%" onclick="resetPassword()">
                         <i class="fas fa-lock"></i> Update Password
@@ -2072,155 +2072,7 @@
         </div>
     </div>
 
-    <!-- Apply Modal -->
-    <div class="modal-overlay" id="applyModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Apply for Position</h3>
-                <button class="modal-close" onclick="closeModal('applyModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="applyJobDetails" style="margin-bottom:20px"></div>
-
-                <!-- AI Auto-Fill Section -->
-                <div id="aiApplySection" style="margin-bottom:20px;padding:16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:var(--radius-sm)">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-                        <i class="fas fa-robot" style="color:var(--primary-light)"></i>
-                        <span style="font-weight:700;color:var(--primary-light)">AI Application Assistant</span>
-                    </div>
-                    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">AI will analyze your profile and the job to generate the best answers.</p>
-                    <div id="aiSuggestions" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
-                        <!-- AI suggestions injected here -->
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="generateAIApplyAnswers()" id="btnGenerateAI">
-                        <i class="fas fa-magic"></i> Generate AI Answers
-                    </button>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Cover Letter (AI Generated)</label>
-                    <textarea class="form-control" id="coverLetter" placeholder="Click 'Generate AI Answers' above to auto-fill..."></textarea>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;margin-top:12px">
-                    <i class="fas fa-paperclip" style="color:var(--text-muted)"></i>
-                    <span style="font-size:0.9rem;color:var(--text-secondary)" id="applyResumeName">No resume uploaded</span>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('applyModal')">Cancel</button>
-                <button class="btn btn-primary" id="confirmApplyBtn" onclick="confirmApply()">
-                    <i class="fas fa-paper-plane"></i> Submit Application
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notifications Modal -->
-    <div class="modal-overlay" id="notifModal">
-        <div class="modal" style="max-width:450px">
-            <div class="modal-header">
-                <h3 class="modal-title">Notifications</h3>
-                <button class="modal-close" onclick="closeModal('notifModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="notificationsList">
-                <div class="empty-state" style="padding:32px">
-                    <i class="fas fa-bell-slash"></i>
-                    <p>No new notifications</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Forgot Password Modal -->
-    <div class="modal-overlay" id="forgotModal">
-        <div class="modal" style="max-width:420px">
-            <div class="modal-header">
-                <h3 class="modal-title">Reset Password</h3>
-                <button class="modal-close" onclick="closeModal('forgotModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="forgotStep1">
-                    <p style="color:var(--text-secondary);margin-bottom:20px;font-size:0.95rem">Enter your email address and we'll send you instructions to reset your password.</p>
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="forgotEmail" placeholder="you@example.com" required>
-                    </div>
-                    <button class="btn btn-primary" style="width:100%" onclick="sendResetLink()">
-                        <i class="fas fa-paper-plane"></i> Send Reset Link
-                    </button>
-                </div>
-                <div id="forgotStep2" class="hidden">
-                    <div style="text-align:center;padding:20px">
-                        <i class="fas fa-envelope-open-text" style="font-size:3rem;color:var(--success);margin-bottom:16px"></i>
-                        <h3 style="margin-bottom:8px">Check your inbox!</h3>
-                        <p style="color:var(--text-secondary);font-size:0.95rem;margin-bottom:20px">We've sent a password reset link to <strong id="forgotEmailDisplay"></strong>. Since this is a demo app without a real email server, you can set a new password directly below.</p>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="newPassword" placeholder="Min 6 characters" minlength="6">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirmNewPassword" placeholder="Re-enter password">
-                    </div>
-                    <button class="btn btn-success" style="width:100%" onclick="resetPassword()">
-                        <i class="fas fa-lock"></i> Update Password
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Google Sign In Modal -->
-    <div class="modal-overlay" id="googleModal">
-        <div class="modal" style="max-width:420px">
-            <div class="modal-header">
-                <h3 class="modal-title">Sign in with Google</h3>
-                <button class="modal-close" onclick="closeModal('googleModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p style="color:var(--text-secondary);margin-bottom:20px;font-size:0.95rem">Select an account to continue to <strong>AutoApply AI</strong></p>
-                <div class="google-accounts">
-                    <div class="google-account" onclick="googleSignIn('Alex Johnson', 'alex.johnson@gmail.com')">
-                        <div class="google-account-avatar">A</div>
-                        <div class="google-account-info">
-                            <div class="google-account-name">Alex Johnson</div>
-                            <div class="google-account-email">alex.johnson@gmail.com</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>
-                    </div>
-                    <div class="google-account" onclick="googleSignIn('Sarah Chen', 'sarah.chen.dev@gmail.com')">
-                        <div class="google-account-avatar">S</div>
-                        <div class="google-account-info">
-                            <div class="google-account-name">Sarah Chen</div>
-                            <div class="google-account-email">sarah.chen.dev@gmail.com</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>
-                    </div>
-                    <div class="google-account" onclick="googleSignIn('Mike Ross', 'mike.ross.tech@gmail.com')">
-                        <div class="google-account-avatar">M</div>
-                        <div class="google-account-info">
-                            <div class="google-account-name">Mike Ross</div>
-                            <div class="google-account-email">mike.ross.tech@gmail.com</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>
-                    </div>
-                </div>
-                <div class="divider">or</div>
-                <button class="btn btn-google" style="width:100%" onclick="googleSignInPrompt()">
-                    <i class="fas fa-plus"></i> Use another account
-                </button>
-            </div>
-        </div>
-    </div>
+    
 
     <script>
         // ============================================
@@ -2273,6 +2125,14 @@
             // Auth forms
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('signupForm').addEventListener('submit', handleSignup);
+
+            // Forgot password Enter key support
+            document.getElementById('forgotEmail').addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); sendResetLink(); }
+            });
+            document.getElementById('confirmNewPassword').addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); resetPassword(); }
+            });
 
             // Resume upload
             const uploadZone = document.getElementById('uploadZone');
@@ -2418,7 +2278,10 @@
             document.getElementById('forgotStep1').classList.remove('hidden');
             document.getElementById('forgotStep2').classList.add('hidden');
             document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
             openModal('forgotModal');
+            setTimeout(() => document.getElementById('forgotEmail').focus(), 100);
         }
 
         function sendResetLink() {
