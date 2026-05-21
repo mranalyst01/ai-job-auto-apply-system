@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -209,6 +208,29 @@
         .btn-ghost:hover {
             background: rgba(92, 156, 255, 0.08);
         }
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #fff;
+            color: #333;
+            font-weight: 500;
+            border-radius: var(--radius);
+            padding: 11px;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid #ddd;
+        }
+        .google-btn:hover {
+            background: #f5f5f5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+        }
         .login-toggle {
             color: var(--text-secondary);
             font-size: 0.85rem;
@@ -223,6 +245,30 @@
         }
         .login-toggle span:hover {
             color: var(--accent);
+        }
+        .forgot-link {
+            font-size: 0.8rem;
+            color: var(--accent-2);
+            text-decoration: underline;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        .forgot-link:hover {
+            color: var(--accent);
+        }
+        /* Forgot password section */
+        #forgotSection {
+            display: none;
+        }
+        #forgotSection.active {
+            display: block;
+        }
+        #normalAuth {
+            display: block;
+        }
+        #normalAuth.hidden {
+            display: none;
         }
 
         /* ========== MAIN APP LAYOUT ========== */
@@ -890,15 +936,36 @@
         <div class="login-card">
             <div class="logo">⚡ JobAuto AI</div>
             <div class="subtitle" id="loginSubtitle">Sign in to your account</div>
-            <form id="authForm" autocomplete="off">
-                <input type="text" id="authName" placeholder="Full Name" style="display:none;">
-                <input type="email" id="authEmail" placeholder="Email address" required>
-                <input type="password" id="authPassword" placeholder="Password" required minlength="4">
-                <button type="submit" class="btn btn-primary" id="authSubmitBtn">Sign In</button>
-            </form>
-            <button class="btn btn-ghost" id="authToggleBtn" style="width:100%;">Create an account</button>
-            <div class="login-toggle" id="loginToggleText">
-                Don't have an account? <span id="toggleLink">Sign up</span>
+
+            <!-- Normal Auth Section -->
+            <div id="normalAuth">
+                <form id="authForm" autocomplete="off">
+                    <input type="text" id="authName" placeholder="Full Name" style="display:none;">
+                    <input type="email" id="authEmail" placeholder="Email address" required>
+                    <input type="password" id="authPassword" placeholder="Password" required minlength="4">
+                    <div style="text-align:right;margin-bottom:12px;">
+                        <span class="forgot-link" id="forgotPasswordLink">Forgot Password?</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="authSubmitBtn">Sign In</button>
+                </form>
+                <button class="btn btn-ghost" id="authToggleBtn" style="width:100%;">Create an account</button>
+
+                <!-- Google Sign-In Button -->
+                <div class="google-btn" id="googleSignInBtn">
+                    <img src="https://www.google.com/favicon.ico" alt="G"> Sign in with Google
+                </div>
+                <div class="login-toggle" id="loginToggleText">
+                    Don't have an account? <span id="toggleLink">Sign up</span>
+                </div>
+            </div>
+
+            <!-- Forgot Password Section -->
+            <div id="forgotSection">
+                <h3 style="margin-bottom:18px;">Reset Password</h3>
+                <input type="email" id="forgotEmail" placeholder="Registered Email" required>
+                <input type="password" id="forgotNewPassword" placeholder="New Password" required minlength="4">
+                <button class="btn btn-primary" id="resetPasswordBtn">Reset Password</button>
+                <button class="btn btn-ghost" id="backToLoginBtn" style="margin-top:8px;">Back to Login</button>
             </div>
         </div>
     </div>
@@ -941,11 +1008,10 @@
                 <p class="page-subtitle">Jobs matched to your profile & preferences</p>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
                     <button class="btn-sm btn-accent" id="refreshJobsBtn">🔄 Refresh Matches</button>
-                    <button class="btn-sm btn-outline" id="showAllJobsBtn">📋 Show All Jobs</button>
                 </div>
                 <div class="jobs-grid" id="jobsGrid"></div>
                 <div id="jobsLoading" style="text-align:center;padding:30px;display:none;"><span class="spinner"></span> Matching jobs...</div>
-                <div id="noJobsMsg" style="text-align:center;padding:30px;color:var(--text-muted);display:none;">No matching jobs found. Try updating your preferences or showing all jobs.</div>
+                <div id="noJobsMsg" style="text-align:center;padding:30px;color:var(--text-muted);display:none;">No matching jobs found. Please complete your profile preferences first!</div>
             </div>
 
             <!-- Applications Page -->
@@ -975,18 +1041,18 @@
                     <div class="form-grid">
                         <div class="form-group"><label>Full Name</label><input type="text" id="profName" placeholder="John Doe"></div>
                         <div class="form-group"><label>Email</label><input type="email" id="profEmail" placeholder="john@example.com"></div>
-                        <div class="form-group"><label>Phone</label><input type="tel" id="profPhone" placeholder="+1 234 567 890"></div>
+                        <div class="form-group"><label>Phone</label><input type="tel" id="profPhone" placeholder="+91 98765 43210"></div>
                         <div class="form-group"><label>LinkedIn URL</label><input type="url" id="profLinkedIn" placeholder="https://linkedin.com/in/..."></div>
                         <div class="form-group"><label>GitHub URL</label><input type="url" id="profGitHub" placeholder="https://github.com/..."></div>
                         <div class="form-group"><label>Portfolio URL</label><input type="url" id="profPortfolio" placeholder="https://..."></div>
                         <div class="form-group"><label>Preferred Role</label><input type="text" id="profRole" placeholder="e.g. Frontend Developer"></div>
                         <div class="form-group"><label>Skills (comma-separated)</label><input type="text" id="profSkills" placeholder="React, JavaScript, CSS"></div>
-                        <div class="form-group"><label>Preferred Location</label><input type="text" id="profLocation" placeholder="e.g. San Francisco"></div>
-                        <div class="form-group"><label>Nearby Cities (comma-separated)</label><input type="text" id="profNearby" placeholder="Oakland, San Jose"></div>
+                        <div class="form-group"><label>Preferred Location</label><input type="text" id="profLocation" placeholder="e.g. Bangalore"></div>
+                        <div class="form-group"><label>Nearby Cities (comma-separated)</label><input type="text" id="profNearby" placeholder="Mumbai, Pune"></div>
                         <div class="form-group"><label>Experience Level</label>
                             <select id="profExperience"><option value="">Any</option><option value="entry">Entry Level</option><option value="mid">Mid Level</option><option value="senior">Senior</option><option value="lead">Lead / Manager</option></select>
                         </div>
-                        <div class="form-group"><label>Expected Salary ($/year)</label><input type="number" id="profSalary" placeholder="e.g. 120000"></div>
+                        <div class="form-group"><label>Expected Salary (₹ LPA CTC)</label><input type="number" id="profSalary" placeholder="e.g. 1200000"></div>
                         <div class="form-group"><label>Work Type</label>
                             <select id="profWorkType"><option value="">Any</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="onsite">On-site</option></select>
                         </div>
@@ -1029,6 +1095,9 @@
     <!-- ==================== TOAST CONTAINER ==================== -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Google Identity Services script (loaded asynchronously) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- ==================== INTERNAL JAVASCRIPT ==================== -->
     <script>
         (function() {
@@ -1061,76 +1130,83 @@
             const noAppsMsg = document.getElementById('noAppsMsg');
             const dashboardStats = document.getElementById('dashboardStats');
             const recentActivity = document.getElementById('recentActivity');
+            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+            const normalAuth = document.getElementById('normalAuth');
+            const forgotSection = document.getElementById('forgotSection');
+            const forgotEmail = document.getElementById('forgotEmail');
+            const forgotNewPassword = document.getElementById('forgotNewPassword');
+            const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+            const backToLoginBtn = document.getElementById('backToLoginBtn');
+            const googleSignInBtn = document.getElementById('googleSignInBtn');
 
             // ============ STATE ============
             let isSignupMode = false;
             let currentUser = null;
             let allJobs = [];
             let applications = [];
-            let currentJobFilter = 'matched'; // 'matched' or 'all'
             let currentAppFilter = 'all';
 
-            // ============ MOCK JOB DATA ============
+            // ============ MOCK JOB DATA (Indian salaries in INR, CTC based) ============
             function generateMockJobs() {
                 return [
-                    { id: 'j1', role: 'Frontend Developer', company: 'TechVista Inc.', location: 'San Francisco',
-                        skills: ['React', 'JavaScript', 'CSS', 'HTML', 'TypeScript'], salary: 130000,
+                    { id: 'j1', role: 'Frontend Developer', company: 'TechVista Inc.', location: 'Bangalore',
+                        skills: ['React', 'JavaScript', 'CSS', 'HTML', 'TypeScript'], salary: 1200000,
                         workType: 'hybrid', jobType: 'full-time', experience: 'mid', posted: '2 days ago',
                         description: 'Build beautiful user interfaces for our SaaS platform.' },
-                    { id: 'j2', role: 'Senior React Developer', company: 'CloudNine Solutions', location: 'San Jose',
-                        skills: ['React', 'TypeScript', 'Node.js', 'GraphQL', 'AWS'], salary: 165000,
+                    { id: 'j2', role: 'Senior React Developer', company: 'CloudNine Solutions', location: 'Pune',
+                        skills: ['React', 'TypeScript', 'Node.js', 'GraphQL', 'AWS'], salary: 2200000,
                         workType: 'remote', jobType: 'full-time', experience: 'senior', posted: '1 day ago',
                         description: 'Lead frontend architecture for enterprise applications.' },
-                    { id: 'j3', role: 'Backend Engineer', company: 'DataFlow Corp', location: 'New York',
-                        skills: ['Python', 'Django', 'PostgreSQL', 'Redis', 'Docker'], salary: 140000,
+                    { id: 'j3', role: 'Backend Engineer', company: 'DataFlow Corp', location: 'Mumbai',
+                        skills: ['Python', 'Django', 'PostgreSQL', 'Redis', 'Docker'], salary: 1500000,
                         workType: 'onsite', jobType: 'full-time', experience: 'mid', posted: '3 days ago',
                         description: 'Design and build scalable backend services.' },
-                    { id: 'j4', role: 'Full Stack Developer', company: 'StartupHub', location: 'Austin',
-                        skills: ['JavaScript', 'React', 'Node.js', 'MongoDB', 'Express'], salary: 120000,
+                    { id: 'j4', role: 'Full Stack Developer', company: 'StartupHub', location: 'Delhi',
+                        skills: ['JavaScript', 'React', 'Node.js', 'MongoDB', 'Express'], salary: 1300000,
                         workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '5 days ago',
                         description: 'Own features end-to-end in a fast-paced startup.' },
-                    { id: 'j5', role: 'Data Scientist', company: 'AI Innovations', location: 'San Francisco',
-                        skills: ['Python', 'Machine Learning', 'TensorFlow', 'SQL', 'Statistics'], salary: 155000,
+                    { id: 'j5', role: 'Data Scientist', company: 'AI Innovations', location: 'Bangalore',
+                        skills: ['Python', 'Machine Learning', 'TensorFlow', 'SQL', 'Statistics'], salary: 2500000,
                         workType: 'hybrid', jobType: 'full-time', experience: 'senior', posted: '1 week ago',
                         description: 'Build ML models to drive product insights.' },
-                    { id: 'j6', role: 'DevOps Engineer', company: 'CloudScale', location: 'Seattle',
-                        skills: ['AWS', 'Kubernetes', 'Docker', 'Terraform', 'CI/CD'], salary: 145000,
+                    { id: 'j6', role: 'DevOps Engineer', company: 'CloudScale', location: 'Hyderabad',
+                        skills: ['AWS', 'Kubernetes', 'Docker', 'Terraform', 'CI/CD'], salary: 2000000,
                         workType: 'remote', jobType: 'full-time', experience: 'senior', posted: '4 days ago',
                         description: 'Manage cloud infrastructure at scale.' },
-                    { id: 'j7', role: 'UI/UX Designer', company: 'DesignCraft', location: 'Los Angeles',
-                        skills: ['Figma', 'Sketch', 'User Research', 'Prototyping', 'CSS'], salary: 110000,
+                    { id: 'j7', role: 'UI/UX Designer', company: 'DesignCraft', location: 'Mumbai',
+                        skills: ['Figma', 'Sketch', 'User Research', 'Prototyping', 'CSS'], salary: 1100000,
                         workType: 'hybrid', jobType: 'full-time', experience: 'mid', posted: '6 days ago',
                         description: 'Create delightful user experiences for web & mobile.' },
-                    { id: 'j8', role: 'Junior Frontend Developer', company: 'WebWizards', location: 'Oakland',
-                        skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Git'], salary: 85000, workType: 'onsite',
+                    { id: 'j8', role: 'Junior Frontend Developer', company: 'WebWizards', location: 'Pune',
+                        skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Git'], salary: 600000, workType: 'onsite',
                         jobType: 'full-time', experience: 'entry', posted: '2 days ago',
                         description: 'Great opportunity to grow your frontend skills.' },
-                    { id: 'j9', role: 'React Native Developer', company: 'MobileFirst', location: 'San Jose',
-                        skills: ['React Native', 'JavaScript', 'TypeScript', 'iOS', 'Android'], salary: 135000,
+                    { id: 'j9', role: 'React Native Developer', company: 'MobileFirst', location: 'Bangalore',
+                        skills: ['React Native', 'JavaScript', 'TypeScript', 'iOS', 'Android'], salary: 1600000,
                         workType: 'remote', jobType: 'contract', experience: 'mid', posted: '3 days ago',
                         description: 'Build cross-platform mobile apps.' },
-                    { id: 'j10', role: 'Software Engineer', company: 'Google', location: 'Mountain View',
-                        skills: ['Java', 'Python', 'C++', 'Algorithms', 'System Design'], salary: 180000,
+                    { id: 'j10', role: 'Software Engineer', company: 'Google', location: 'Bangalore',
+                        skills: ['Java', 'Python', 'C++', 'Algorithms', 'System Design'], salary: 3500000,
                         workType: 'hybrid', jobType: 'full-time', experience: 'senior', posted: '1 day ago',
                         description: 'Work on core search infrastructure.' },
-                    { id: 'j11', role: 'Product Manager', company: 'InnovateTech', location: 'San Francisco',
-                        skills: ['Product Strategy', 'Analytics', 'Agile', 'SQL', 'UX'], salary: 150000,
+                    { id: 'j11', role: 'Product Manager', company: 'InnovateTech', location: 'Delhi',
+                        skills: ['Product Strategy', 'Analytics', 'Agile', 'SQL', 'UX'], salary: 2800000,
                         workType: 'hybrid', jobType: 'full-time', experience: 'senior', posted: '5 days ago',
                         description: 'Drive product vision and execution.' },
-                    { id: 'j12', role: 'QA Engineer', company: 'QualityFirst', location: 'Austin',
-                        skills: ['Selenium', 'Cypress', 'JavaScript', 'Test Automation', 'CI/CD'], salary: 105000,
+                    { id: 'j12', role: 'QA Engineer', company: 'QualityFirst', location: 'Hyderabad',
+                        skills: ['Selenium', 'Cypress', 'JavaScript', 'Test Automation', 'CI/CD'], salary: 900000,
                         workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '1 week ago',
                         description: 'Ensure product quality through automated testing.' },
-                    { id: 'j13', role: 'Frontend Developer', company: 'DesignSystems Co', location: 'San Francisco',
-                        skills: ['React', 'Storybook', 'CSS-in-JS', 'TypeScript', 'Accessibility'], salary: 128000,
+                    { id: 'j13', role: 'Frontend Developer', company: 'DesignSystems Co', location: 'Bangalore',
+                        skills: ['React', 'Storybook', 'CSS-in-JS', 'TypeScript', 'Accessibility'], salary: 1400000,
                         workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '2 days ago',
                         description: 'Build and maintain design system components.' },
-                    { id: 'j14', role: 'Python Developer', company: 'DataPipe', location: 'Chicago',
-                        skills: ['Python', 'FastAPI', 'PostgreSQL', 'Docker', 'Redis'], salary: 125000,
+                    { id: 'j14', role: 'Python Developer', company: 'DataPipe', location: 'Chennai',
+                        skills: ['Python', 'FastAPI', 'PostgreSQL', 'Docker', 'Redis'], salary: 1100000,
                         workType: 'remote', jobType: 'full-time', experience: 'mid', posted: '4 days ago',
                         description: 'Develop data processing pipelines.' },
-                    { id: 'j15', role: 'Engineering Manager', company: 'BigTech Corp', location: 'San Jose',
-                        skills: ['Leadership', 'System Design', 'Java', 'Agile', 'Mentoring'], salary: 200000,
+                    { id: 'j15', role: 'Engineering Manager', company: 'BigTech Corp', location: 'Mumbai',
+                        skills: ['Leadership', 'System Design', 'Java', 'Agile', 'Mentoring'], salary: 4000000,
                         workType: 'hybrid', jobType: 'full-time', experience: 'lead', posted: '1 week ago',
                         description: 'Lead a team of 8 engineers.' },
                 ];
@@ -1138,23 +1214,10 @@
 
             // ============ LOCAL STORAGE HELPERS ============
             function lsGet(key, fallback = null) {
-                try {
-                    const val = localStorage.getItem('jobauto_' + key);
-                    return val ? JSON.parse(val) : fallback;
-                } catch { return fallback; }
+                try { return JSON.parse(localStorage.getItem('jobauto_' + key)) || fallback; } catch { return fallback; }
             }
-
-            function lsSet(key, value) {
-                try {
-                    localStorage.setItem('jobauto_' + key, JSON.stringify(value));
-                } catch (e) {
-                    showToast('Storage full! Please clear some data.', 'warning');
-                }
-            }
-
-            function lsRemove(key) {
-                localStorage.removeItem('jobauto_' + key);
-            }
+            function lsSet(key, value) { try { localStorage.setItem('jobauto_' + key, JSON.stringify(value)); } catch(e) { showToast('Storage full!','warning'); } }
+            function lsRemove(key) { localStorage.removeItem('jobauto_' + key); }
 
             // ============ TOAST NOTIFICATIONS ============
             function showToast(message, type = 'info') {
@@ -1162,7 +1225,7 @@
                 toast.className = `toast toast-${type}`;
                 toast.textContent = message;
                 toastContainer.appendChild(toast);
-                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+                setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3000);
             }
 
             // ============ AUTHENTICATION ============
@@ -1170,7 +1233,6 @@
                 const session = lsGet('session');
                 if (session && session.email) {
                     currentUser = session;
-                    isSignupMode = false;
                     loginOverlay.classList.add('hidden');
                     appContainer.style.display = 'flex';
                     updateSidebarUser();
@@ -1184,75 +1246,75 @@
                     return false;
                 }
             }
-
             function updateSidebarUser() {
-                if (currentUser) {
+                if(currentUser) {
                     sidebarAvatar.textContent = (currentUser.name || currentUser.email)[0].toUpperCase();
                     sidebarName.textContent = currentUser.name || currentUser.email.split('@')[0];
                 }
             }
-
             function setAuthMode(signup) {
                 isSignupMode = signup;
-                if (signup) {
-                    authName.style.display = 'block';
-                    authName.required = true;
-                    authSubmitBtn.textContent = 'Sign Up';
-                    loginSubtitle.textContent = 'Create your account';
-                    authToggleBtn.textContent = 'Already have an account? Sign in';
-                    loginToggleText.innerHTML = 'Already have an account? <span id="toggleLink">Sign in</span>';
-                } else {
-                    authName.style.display = 'none';
-                    authName.required = false;
-                    authSubmitBtn.textContent = 'Sign In';
-                    loginSubtitle.textContent = 'Sign in to your account';
-                    authToggleBtn.textContent = 'Create an account';
-                    loginToggleText.innerHTML = 'Don\'t have an account? <span id="toggleLink">Sign up</span>';
-                }
-                // Re-bind toggle link
+                authName.style.display = signup ? 'block' : 'none';
+                authName.required = signup;
+                authSubmitBtn.textContent = signup ? 'Sign Up' : 'Sign In';
+                loginSubtitle.textContent = signup ? 'Create your account' : 'Sign in to your account';
+                authToggleBtn.textContent = signup ? 'Already have an account? Sign in' : 'Create an account';
+                loginToggleText.innerHTML = signup ? 'Already have an account? <span id="toggleLink">Sign in</span>' : 'Don\'t have an account? <span id="toggleLink">Sign up</span>';
                 const newToggleLink = document.getElementById('toggleLink');
-                if (newToggleLink) newToggleLink.addEventListener('click', () => setAuthMode(!isSignupMode));
+                if(newToggleLink) newToggleLink.addEventListener('click', ()=> setAuthMode(!isSignupMode));
             }
+            // Forgot password UI toggle
+            function showForgotPassword() {
+                normalAuth.classList.add('hidden');
+                forgotSection.classList.add('active');
+            }
+            function hideForgotPassword() {
+                normalAuth.classList.remove('hidden');
+                forgotSection.classList.remove('active');
+                forgotEmail.value = '';
+                forgotNewPassword.value = '';
+            }
+            forgotPasswordLink.addEventListener('click', showForgotPassword);
+            backToLoginBtn.addEventListener('click', hideForgotPassword);
 
+            resetPasswordBtn.addEventListener('click', function() {
+                const email = forgotEmail.value.trim();
+                const newPassword = forgotNewPassword.value.trim();
+                if (!email || !newPassword || newPassword.length < 4) {
+                    showToast('Please enter a valid email and password (min 4 chars).', 'warning');
+                    return;
+                }
+                const users = lsGet('users', {});
+                if (!users[email]) {
+                    showToast('No account found with that email.', 'warning');
+                    return;
+                }
+                users[email].password = newPassword;
+                lsSet('users', users);
+                showToast('Password reset successful! Please login.', 'success');
+                hideForgotPassword();
+                authEmail.value = email;
+                authPassword.value = '';
+            });
+
+            // Normal auth form submit
             authForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const email = authEmail.value.trim();
                 const password = authPassword.value.trim();
                 const name = authName.value.trim() || email.split('@')[0];
-
-                if (!email || !password) {
-                    showToast('Please fill in all required fields.', 'warning');
-                    return;
-                }
-                if (password.length < 4) {
-                    showToast('Password must be at least 4 characters.', 'warning');
-                    return;
-                }
-
+                if (!email || !password) { showToast('Please fill all fields.','warning'); return; }
+                if (password.length < 4) { showToast('Password min 4 chars.','warning'); return; }
+                const users = lsGet('users', {});
                 if (isSignupMode) {
-                    // Check if user exists
-                    const users = lsGet('users', {});
-                    if (users[email]) {
-                        showToast('An account with this email already exists. Please sign in.', 'warning');
-                        return;
-                    }
+                    if (users[email]) { showToast('Account already exists.','warning'); return; }
                     users[email] = { name, email, password };
                     lsSet('users', users);
-                    showToast('Account created successfully! Welcome aboard! 🎉', 'success');
+                    showToast('Account created! 🎉','success');
                 } else {
-                    const users = lsGet('users', {});
-                    if (!users[email]) {
-                        showToast('No account found. Please sign up first.', 'warning');
-                        return;
-                    }
-                    if (users[email].password !== password) {
-                        showToast('Incorrect password. Please try again.', 'warning');
-                        return;
-                    }
+                    if (!users[email]) { showToast('Account not found.','warning'); return; }
+                    if (users[email].password !== password) { showToast('Wrong password.','warning'); return; }
                 }
-
-                // Create session
-                const users = lsGet('users', {});
                 currentUser = { name: users[email]?.name || name, email };
                 lsSet('session', currentUser);
                 loginOverlay.classList.add('hidden');
@@ -1260,13 +1322,66 @@
                 updateSidebarUser();
                 loadAllData();
                 navigateTo('dashboard');
-                showToast(`Welcome back, ${currentUser.name || email.split('@')[0]}! 👋`, 'success');
                 authForm.reset();
                 setAuthMode(false);
             });
 
             authToggleBtn.addEventListener('click', () => setAuthMode(!isSignupMode));
             toggleLink.addEventListener('click', () => setAuthMode(!isSignupMode));
+
+            // ============ GOOGLE SIGN-IN ============
+            // Replace with your actual Google Client ID. For local testing, you can use a placeholder.
+            const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'; // ⚠️ REPLACE ME
+
+            function initializeGoogleSignIn() {
+                if (typeof google === 'undefined' || !google.accounts) return;
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleSignIn,
+                });
+                // You can render a button, but we already have a custom button, so we'll just trigger it manually.
+                googleSignInBtn.addEventListener('click', () => {
+                    google.accounts.id.prompt(); // shows One Tap UI
+                });
+            }
+
+            function handleGoogleSignIn(response) {
+                // Decode JWT token to get user info
+                const payload = JSON.parse(atob(response.credential.split('.')[1]));
+                const googleUser = {
+                    name: payload.name,
+                    email: payload.email,
+                    picture: payload.picture,
+                };
+                // Save as session (no password needed)
+                currentUser = { name: googleUser.name, email: googleUser.email, google: true };
+                lsSet('session', currentUser);
+                // Also store in users if not exists (for record)
+                const users = lsGet('users', {});
+                if (!users[googleUser.email]) {
+                    users[googleUser.email] = { name: googleUser.name, email: googleUser.email, google: true };
+                    lsSet('users', users);
+                }
+                loginOverlay.classList.add('hidden');
+                appContainer.style.display = 'flex';
+                updateSidebarUser();
+                loadAllData();
+                navigateTo('dashboard');
+                showToast(`Welcome, ${googleUser.name}! 👋`, 'success');
+            }
+
+            // Initialize Google Sign-In after script loads
+            window.addEventListener('load', () => {
+                if (typeof google !== 'undefined' && google.accounts) {
+                    initializeGoogleSignIn();
+                } else {
+                    // Retry after a delay if script hasn't loaded
+                    setTimeout(() => {
+                        if (typeof google !== 'undefined' && google.accounts) initializeGoogleSignIn();
+                    }, 1000);
+                }
+            });
+
             logoutBtn.addEventListener('click', function() {
                 lsRemove('session');
                 currentUser = null;
@@ -1274,61 +1389,44 @@
                 appContainer.style.display = 'none';
                 authForm.reset();
                 setAuthMode(false);
-                showToast('Logged out successfully.', 'info');
+                hideForgotPassword();
+                // Google sign-out if needed (optional)
+                if (typeof google !== 'undefined' && google.accounts) {
+                    google.accounts.id.disableAutoSelect();
+                }
+                showToast('Logged out.', 'info');
             });
 
             // ============ NAVIGATION ============
             function navigateTo(pageName) {
-                // Update sidebar links
                 document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
                 const activeLink = document.querySelector(`.sidebar nav a[data-page="${pageName}"]`);
-                if (activeLink) activeLink.classList.add('active');
-                // Show page
+                if(activeLink) activeLink.classList.add('active');
                 document.querySelectorAll('.main-content .page').forEach(p => p.classList.remove('active'));
                 const pageEl = document.getElementById('page-' + pageName);
-                if (pageEl) pageEl.classList.add('active');
-                // Refresh page content
+                if(pageEl) pageEl.classList.add('active');
                 refreshPage(pageName);
             }
-
             document.querySelectorAll('.sidebar nav a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    navigateTo(this.dataset.page);
-                });
+                link.addEventListener('click', function(e) { e.preventDefault(); navigateTo(this.dataset.page); });
             });
-
             function refreshPage(pageName) {
-                switch (pageName) {
-                    case 'dashboard':
-                        renderDashboard();
-                        break;
-                    case 'jobs':
-                        renderJobs(currentJobFilter);
-                        break;
-                    case 'applications':
-                        renderApplications(currentAppFilter);
-                        break;
-                    case 'profile':
-                        loadProfileForm();
-                        break;
-                    case 'resume':
-                        renderResumePreview();
-                        break;
+                switch(pageName) {
+                    case 'dashboard': renderDashboard(); break;
+                    case 'jobs': renderJobs(); break;
+                    case 'applications': renderApplications(currentAppFilter); break;
+                    case 'profile': loadProfileForm(); break;
+                    case 'resume': renderResumePreview(); break;
                 }
             }
 
-            // ============ LOAD ALL DATA ============
+            // ============ LOAD DATA ============
             function loadAllData() {
-                allJobs = lsGet('jobsData', null);
-                if (!allJobs || allJobs.length === 0) {
-                    allJobs = generateMockJobs();
-                    lsSet('jobsData', allJobs);
-                }
+                allJobs = lsGet('jobsData', generateMockJobs());
+                lsSet('jobsData', allJobs);
                 applications = lsGet('applications', []);
-                // Load auto-apply state
                 const profile = lsGet('profile', {});
-                if (autoApplyToggle) autoApplyToggle.checked = profile.autoApply || false;
+                if(autoApplyToggle) autoApplyToggle.checked = profile.autoApply || false;
             }
 
             // ============ DASHBOARD ============
@@ -1339,301 +1437,168 @@
                 const matchedCount = getMatchedJobs().length;
                 const appliedCount = applications.filter(a => a.status === 'applied').length;
                 const pendingCount = applications.filter(a => a.status === 'pending').length;
-                const autoApplyOn = profile.autoApply || false;
-
                 dashboardStats.innerHTML = `
                     <div class="stat-card"><div class="stat-value">${profileComplete}%</div><div class="stat-label">Profile Complete</div></div>
-                    <div class="stat-card"><div class="stat-value">${resumeInfo ? '✅' : '❌'}</div><div class="stat-label">Resume Uploaded</div></div>
+                    <div class="stat-card"><div class="stat-value">${resumeInfo ? '✅' : '❌'}</div><div class="stat-label">Resume</div></div>
                     <div class="stat-card"><div class="stat-value">${matchedCount}</div><div class="stat-label">Matched Jobs</div></div>
-                    <div class="stat-card"><div class="stat-value">${appliedCount}</div><div class="stat-label">Applied Jobs</div></div>
+                    <div class="stat-card"><div class="stat-value">${appliedCount}</div><div class="stat-label">Applied</div></div>
                     <div class="stat-card"><div class="stat-value">${pendingCount}</div><div class="stat-label">Pending</div></div>
-                    <div class="stat-card"><div class="stat-value">${autoApplyOn ? '⚡ ON' : '⏸ OFF'}</div><div class="stat-label">Auto Apply</div></div>
+                    <div class="stat-card"><div class="stat-value">${profile.autoApply ? '⚡ ON' : '⏸ OFF'}</div><div class="stat-label">Auto Apply</div></div>
                 `;
-
-                const recentApps = [...applications].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-                if (recentApps.length === 0) {
-                    recentActivity.innerHTML =
-                        '<p>No recent activity. <a href="#" style="color:var(--accent-2);" onclick="document.querySelector(\'.sidebar nav a[data-page=jobs]\').click();return false;">Browse jobs</a> to get started!</p>';
-                } else {
-                    recentActivity.innerHTML = recentApps.map(a => `
-                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-glass);">
-                            <span><strong>${a.role}</strong> at ${a.company}</span>
-                            <span class="badge ${a.status==='applied'?'badge-success':a.status==='pending'?'badge-warning':'badge-danger'}">${a.status}</span>
-                            <span style="font-size:0.75rem;color:var(--text-muted);">${a.date}</span>
-                        </div>
-                    `).join('');
-                }
+                const recentApps = [...applications].sort((a,b)=> new Date(b.date) - new Date(a.date)).slice(0,5);
+                recentActivity.innerHTML = recentApps.length ? recentApps.map(a => `
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-glass);">
+                        <span><strong>${a.role}</strong> @ ${a.company}</span>
+                        <span class="badge ${a.status==='applied'?'badge-success':a.status==='pending'?'badge-warning':'badge-danger'}">${a.status}</span>
+                        <span style="font-size:0.75rem;color:var(--text-muted);">${a.date}</span>
+                    </div>`).join('') : '<p>No activity yet. <a href="#" style="color:var(--accent-2);" onclick="document.querySelector(\'.sidebar nav a[data-page=jobs]\').click();return false;">Browse jobs</a>.</p>';
             }
-
             function calculateProfileCompletion(profile, resumeInfo) {
-                let points = 0;
-                const total = 10;
-                if (profile.name) points++;
-                if (profile.email) points++;
-                if (profile.phone) points++;
-                if (profile.role) points++;
-                if (profile.skills) points++;
-                if (profile.location) points++;
-                if (profile.experience) points++;
-                if (profile.salary) points++;
-                if (profile.workType) points++;
-                if (resumeInfo) points++;
-                return Math.round((points / total) * 100);
+                let pts = 0; const total = 10;
+                if(profile.name) pts++; if(profile.email) pts++; if(profile.phone) pts++;
+                if(profile.role) pts++; if(profile.skills) pts++; if(profile.location) pts++;
+                if(profile.experience) pts++; if(profile.salary) pts++; if(profile.workType) pts++;
+                if(resumeInfo) pts++;
+                return Math.round((pts/total)*100);
             }
 
-            // ============ JOB MATCHING & RENDERING ============
+            // ============ JOB MATCHING (INR based) ============
             function getMatchedJobs() {
                 const profile = lsGet('profile', {});
-                if (!profile.role && !profile.skills && !profile.location) return allJobs; // No preferences = all jobs match
+                if(!profile.role && !profile.skills && !profile.location) return [];
                 return allJobs.filter(job => calculateMatchScore(job, profile) >= 30);
             }
-
             function calculateMatchScore(job, profile) {
                 let score = 0;
-                // Role match (0-30)
-                if (profile.role && job.role.toLowerCase().includes(profile.role.toLowerCase())) score += 30;
-                else if (profile.role && job.role.toLowerCase().split(' ').some(w => profile.role.toLowerCase().includes(w)))
-                    score += 15;
-                // Location match (0-25)
-                const nearbyCities = profile.nearby ? profile.nearby.split(',').map(c => c.trim().toLowerCase()) : [];
-                const allLocations = [profile.location?.toLowerCase(), ...nearbyCities].filter(Boolean);
-                if (allLocations.some(loc => job.location.toLowerCase().includes(loc))) score += 25;
-                else if (profile.location && job.location.toLowerCase().includes(profile.location.toLowerCase())) score +=
-                    20;
-                // Skills match (0-30)
-                if (profile.skills) {
-                    const userSkills = profile.skills.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-                    if (userSkills.length > 0 && job.skills) {
-                        const matchedSkills = userSkills.filter(us => job.skills.some(js => js.toLowerCase().includes(
-                            us)));
-                        score += Math.round((matchedSkills.length / Math.max(userSkills.length, 1)) * 30);
-                    }
+                if(profile.role && job.role.toLowerCase().includes(profile.role.toLowerCase())) score += 30;
+                const nearby = profile.nearby ? profile.nearby.split(',').map(s=>s.trim().toLowerCase()) : [];
+                const locs = [profile.location?.toLowerCase(), ...nearby].filter(Boolean);
+                if(locs.some(l=> job.location.toLowerCase().includes(l))) score += 25;
+                if(profile.skills) {
+                    const uSkills = profile.skills.split(',').map(s=>s.trim().toLowerCase());
+                    const matched = uSkills.filter(us => job.skills.some(js => js.toLowerCase().includes(us)));
+                    score += Math.round((matched.length / Math.max(uSkills.length,1)) * 30);
                 }
-                // Salary match (0-15)
-                if (profile.salary && job.salary) {
-                    const expected = Number(profile.salary);
-                    if (job.salary >= expected) score += 15;
-                    else if (job.salary >= expected * 0.8) score += 8;
+                if(profile.salary && job.salary) {
+                    if(job.salary >= +profile.salary) score += 15;
+                    else if(job.salary >= +profile.salary * 0.8) score += 8;
                 }
                 return Math.min(100, score);
             }
-
-            function getMatchLabel(score) {
-                if (score >= 75) return 'match-high';
-                if (score >= 45) return 'match-medium';
-                return 'match-low';
+            function formatSalaryINR(salary) {
+                if(salary >= 10000000) return `₹${(salary/10000000).toFixed(2)} Cr`;
+                return `₹${(salary/100000).toFixed(1)} LPA`;
             }
-
-            function renderJobs(filter = 'matched') {
-                currentJobFilter = filter;
+            function renderJobs() {
                 jobsLoading.style.display = 'block';
                 jobsGrid.innerHTML = '';
                 noJobsMsg.style.display = 'none';
-
-                // Simulate loading
                 setTimeout(() => {
                     jobsLoading.style.display = 'none';
                     const profile = lsGet('profile', {});
-                    let displayJobs = filter === 'all' ? [...allJobs] : getMatchedJobs();
-
-                    if (displayJobs.length === 0) {
+                    const displayJobs = getMatchedJobs().sort((a,b) => calculateMatchScore(b,profile) - calculateMatchScore(a,profile));
+                    if(displayJobs.length === 0) {
                         noJobsMsg.style.display = 'block';
                         return;
                     }
-
-                    // Sort by match score descending
-                    displayJobs.sort((a, b) => calculateMatchScore(b, profile) - calculateMatchScore(a, profile));
-
                     jobsGrid.innerHTML = displayJobs.map(job => {
                         const score = calculateMatchScore(job, profile);
-                        const matchLabel = getMatchLabel(score);
-                        const alreadyApplied = applications.find(a => a.jobId === job.id && a.status ===
-                            'applied');
-                        const isPending = applications.find(a => a.jobId === job.id && a.status === 'pending');
-                        return `
-                            <div class="job-card">
-                                <div style="display:flex;justify-content:space-between;align-items:start;">
-                                    <div>
-                                        <div class="job-role">${job.role}</div>
-                                        <div class="job-company">🏢 ${job.company}</div>
-                                    </div>
-                                    <span class="match-score ${matchLabel}">🎯 ${score}%</span>
-                                </div>
-                                <div class="job-meta">
-                                    <span>📍 ${job.location}</span><span>💻 ${job.workType}</span><span>🕐 ${job.jobType}</span><span>📅 ${job.posted}</span>
-                                </div>
-                                <div style="font-size:0.82rem;color:var(--text-secondary);">💰 $${(job.salary/1000).toFixed(0)}k/yr • ${job.experience} level</div>
-                                <div class="job-skills">${job.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
-                                <p style="font-size:0.8rem;color:var(--text-muted);margin:4px 0;">${job.description}</p>
-                                <div style="display:flex;gap:8px;margin-top:auto;">
-                                    ${alreadyApplied
-                                        ? '<button class="btn-sm btn-outline" disabled>✅ Applied</button>'
-                                        : isPending
-                                            ? '<button class="btn-sm btn-outline" disabled>⏳ Pending</button>'
-                                            : `<button class="btn-sm btn-accent apply-btn" data-job-id="${job.id}">🚀 Quick Apply</button>`
-                                    }
-                                    <button class="btn-sm btn-outline save-btn" data-job-id="${job.id}">📌 Save</button>
-                                </div>
+                        const applied = applications.find(a => a.jobId === job.id && a.status === 'applied');
+                        const pending = applications.find(a => a.jobId === job.id && a.status === 'pending');
+                        return `<div class="job-card">
+                            <div style="display:flex;justify-content:space-between;">
+                                <div><div class="job-role">${job.role}</div><div class="job-company">🏢 ${job.company}</div></div>
+                                <span class="match-score ${score>=75?'match-high':score>=45?'match-medium':'match-low'}">🎯 ${score}%</span>
                             </div>
-                        `;
+                            <div class="job-meta"><span>📍 ${job.location}</span><span>💻 ${job.workType}</span><span>🕐 ${job.jobType}</span><span>📅 ${job.posted}</span></div>
+                            <div style="font-size:0.82rem;color:var(--text-secondary);">💰 ${formatSalaryINR(job.salary)} CTC • ${job.experience}</div>
+                            <div class="job-skills">${job.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+                            <p style="font-size:0.8rem;color:var(--text-muted);">${job.description}</p>
+                            <div style="display:flex;gap:8px;">
+                                ${applied ? '<button class="btn-sm btn-outline" disabled>✅ Applied</button>' :
+                                  pending ? '<button class="btn-sm btn-outline" disabled>⏳ Pending</button>' :
+                                  `<button class="btn-sm btn-accent apply-btn" data-job-id="${job.id}">🚀 Quick Apply</button>`}
+                                <button class="btn-sm btn-outline save-btn" data-job-id="${job.id}">📌 Save</button>
+                            </div>
+                        </div>`;
                     }).join('');
-
-                    // Bind apply buttons
-                    document.querySelectorAll('.apply-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            applyToJob(this.dataset.jobId);
-                        });
-                    });
-                    document.querySelectorAll('.save-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            saveJobForLater(this.dataset.jobId);
-                        });
-                    });
+                    document.querySelectorAll('.apply-btn').forEach(b => b.addEventListener('click', function(){ applyToJob(this.dataset.jobId); }));
+                    document.querySelectorAll('.save-btn').forEach(b => b.addEventListener('click', function(){ saveJobForLater(this.dataset.jobId); }));
                 }, 400);
             }
 
             function applyToJob(jobId) {
-                const job = allJobs.find(j => j.id === jobId);
-                if (!job) return;
-                // Check if already applied
-                if (applications.find(a => a.jobId === jobId && a.status === 'applied')) {
-                    showToast('You\'ve already applied to this job!', 'info');
-                    return;
-                }
-                // Remove any pending entry
-                applications = applications.filter(a => !(a.jobId === jobId && a.status === 'pending'));
-                const newApp = {
-                    id: 'app_' + Date.now(),
-                    jobId: job.id,
-                    role: job.role,
-                    company: job.company,
-                    location: job.location,
-                    status: 'applied',
-                    date: new Date().toISOString().split('T')[0],
-                    autoApplied: false,
-                };
-                applications.push(newApp);
+                const job = allJobs.find(j => j.id === jobId); if(!job) return;
+                if(applications.find(a=>a.jobId===jobId && a.status==='applied')) { showToast('Already applied!','info'); return; }
+                applications = applications.filter(a=> !(a.jobId===jobId && a.status==='pending'));
+                applications.push({ id:'app_'+Date.now(), jobId:job.id, role:job.role, company:job.company, location:job.location, status:'applied', date:new Date().toISOString().split('T')[0], autoApplied:false });
                 lsSet('applications', applications);
-                showToast(`✅ Applied to ${job.role} at ${job.company}!`, 'success');
-                renderJobs(currentJobFilter);
-                renderApplications(currentAppFilter);
-                renderDashboard();
+                showToast(`✅ Applied to ${job.role}!`,'success');
+                renderJobs(); renderApplications(currentAppFilter); renderDashboard();
             }
-
             function saveJobForLater(jobId) {
-                const job = allJobs.find(j => j.id === jobId);
-                if (!job) return;
-                if (applications.find(a => a.jobId === jobId)) {
-                    showToast('This job is already in your applications.', 'info');
-                    return;
-                }
-                const newApp = {
-                    id: 'app_' + Date.now(),
-                    jobId: job.id,
-                    role: job.role,
-                    company: job.company,
-                    location: job.location,
-                    status: 'pending',
-                    date: new Date().toISOString().split('T')[0],
-                    autoApplied: false,
-                };
-                applications.push(newApp);
+                const job = allJobs.find(j=>j.id===jobId); if(!job) return;
+                if(applications.find(a=>a.jobId===jobId)) { showToast('Already in list.','info'); return; }
+                applications.push({ id:'app_'+Date.now(), jobId:job.id, role:job.role, company:job.company, location:job.location, status:'pending', date:new Date().toISOString().split('T')[0], autoApplied:false });
                 lsSet('applications', applications);
-                showToast(`📌 Saved ${job.role} for later!`, 'info');
-                renderJobs(currentJobFilter);
-                renderApplications(currentAppFilter);
-                renderDashboard();
+                showToast(`📌 Saved ${job.role}.`,'info');
+                renderJobs(); renderApplications(currentAppFilter); renderDashboard();
             }
+            document.getElementById('refreshJobsBtn')?.addEventListener('click', renderJobs);
 
-            // Refresh & show all buttons
-            document.getElementById('refreshJobsBtn')?.addEventListener('click', () => renderJobs('matched'));
-            document.getElementById('showAllJobsBtn')?.addEventListener('click', () => renderJobs('all'));
-
-            // ============ APPLICATIONS RENDERING ============
-            function renderApplications(filter = 'all') {
+            // ============ APPLICATIONS ============
+            function renderApplications(filter='all') {
                 currentAppFilter = filter;
-                let displayApps = [...applications];
-                if (filter !== 'all') {
-                    displayApps = displayApps.filter(a => a.status === filter);
-                }
-                applicationsTableBody.innerHTML = '';
-                if (displayApps.length === 0) {
+                let apps = [...applications];
+                if(filter!=='all') apps = apps.filter(a=>a.status===filter);
+                if(apps.length === 0) {
+                    applicationsTableBody.innerHTML = '';
                     noAppsMsg.style.display = 'block';
                 } else {
                     noAppsMsg.style.display = 'none';
-                    applicationsTableBody.innerHTML = displayApps.map(a => `
-                        <tr>
-                            <td><strong>${a.role}</strong>${a.autoApplied ? ' <span class="badge badge-accent">🤖 Auto</span>' : ''}</td>
-                            <td>${a.company}</td>
-                            <td><span class="badge ${a.status==='applied'?'badge-success':a.status==='pending'?'badge-warning':'badge-danger'}">${a.status}</span></td>
-                            <td>${a.date}</td>
-                            <td>
-                                ${a.status === 'pending'
-                                    ? `<button class="btn-sm btn-accent" style="font-size:0.7rem;padding:4px 10px;" onclick="window._applyPending('${a.jobId}')">Apply Now</button>`
-                                    : ''}
-                                ${a.status !== 'rejected'
-                                    ? `<button class="btn-sm btn-danger-sm" style="margin-left:4px;" onclick="window._rejectApp('${a.id}')">Reject</button>`
-                                    : `<button class="btn-sm btn-outline" style="font-size:0.7rem;padding:4px 10px;" onclick="window._retryApp('${a.jobId}')">Retry</button>`}
-                            </td>
-                        </tr>
-                    `).join('');
+                    applicationsTableBody.innerHTML = apps.map(a=>`<tr>
+                        <td><strong>${a.role}</strong>${a.autoApplied?' <span class="badge badge-accent">🤖 Auto</span>':''}</td>
+                        <td>${a.company}</td>
+                        <td><span class="badge ${a.status==='applied'?'badge-success':a.status==='pending'?'badge-warning':'badge-danger'}">${a.status}</span></td>
+                        <td>${a.date}</td>
+                        <td>${a.status==='pending'?`<button class="btn-sm btn-accent" style="font-size:0.7rem;padding:4px 8px;" onclick="window._applyPending('${a.jobId}')">Apply Now</button>`:''}
+                        ${a.status!=='rejected'?`<button class="btn-sm btn-danger-sm" style="margin-left:4px;" onclick="window._rejectApp('${a.id}')">Reject</button>`:`<button class="btn-sm btn-outline" style="font-size:0.7rem;padding:4px 8px;" onclick="window._retryApp('${a.jobId}')">Retry</button>`}</td>
+                    </tr>`).join('');
                 }
-                // Update filter buttons
-                document.querySelectorAll('#page-applications button[data-filter]').forEach(b => {
-                    b.classList.remove('btn-accent', 'active-filter');
-                    b.classList.add('btn-outline');
-                    if (b.dataset.filter === filter) {
-                        b.classList.remove('btn-outline');
-                        b.classList.add('btn-accent', 'active-filter');
-                    }
+                document.querySelectorAll('#page-applications button[data-filter]').forEach(b=>{
+                    b.classList.remove('btn-accent','active-filter'); b.classList.add('btn-outline');
+                    if(b.dataset.filter===filter){ b.classList.remove('btn-outline'); b.classList.add('btn-accent','active-filter'); }
                 });
             }
-
-            // Expose functions for inline onclick
-            window._applyPending = function(jobId) { applyToJob(jobId); };
-            window._rejectApp = function(appId) {
-                const app = applications.find(a => a.id === appId);
-                if (app) {
-                    app.status = 'rejected';
-                    app.date = new Date().toISOString().split('T')[0];
-                    lsSet('applications', applications);
-                    showToast(`❌ Rejected ${app.role} at ${app.company}.`, 'warning');
-                    renderApplications(currentAppFilter);
-                    renderJobs(currentJobFilter);
-                    renderDashboard();
-                }
+            window._applyPending = (jobId) => applyToJob(jobId);
+            window._rejectApp = (appId) => {
+                const app = applications.find(a=>a.id===appId);
+                if(app){ app.status='rejected'; app.date=new Date().toISOString().split('T')[0]; lsSet('applications',applications); showToast('❌ Rejected.','warning'); renderApplications(currentAppFilter); renderJobs(); renderDashboard(); }
             };
-            window._retryApp = function(jobId) { applyToJob(jobId); };
+            window._retryApp = (jobId) => applyToJob(jobId);
+            document.querySelectorAll('#page-applications button[data-filter]').forEach(b=>b.addEventListener('click', function(){ renderApplications(this.dataset.filter); }));
 
-            // Application filter buttons
-            document.querySelectorAll('#page-applications button[data-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    renderApplications(this.dataset.filter);
-                });
-            });
-
-            // ============ PROFILE FORM ============
+            // ============ PROFILE ============
             function loadProfileForm() {
-                const profile = lsGet('profile', {});
-                document.getElementById('profName').value = profile.name || '';
-                document.getElementById('profEmail').value = profile.email || currentUser?.email || '';
-                document.getElementById('profPhone').value = profile.phone || '';
-                document.getElementById('profLinkedIn').value = profile.linkedIn || '';
-                document.getElementById('profGitHub').value = profile.gitHub || '';
-                document.getElementById('profPortfolio').value = profile.portfolio || '';
-                document.getElementById('profRole').value = profile.role || '';
-                document.getElementById('profSkills').value = profile.skills || '';
-                document.getElementById('profLocation').value = profile.location || '';
-                document.getElementById('profNearby').value = profile.nearby || '';
-                document.getElementById('profExperience').value = profile.experience || '';
-                document.getElementById('profSalary').value = profile.salary || '';
-                document.getElementById('profWorkType').value = profile.workType || '';
-                document.getElementById('profJobType').value = profile.jobType || '';
-                document.getElementById('profNotice').value = profile.notice || '';
-                autoApplyToggle.checked = profile.autoApply || false;
+                const p = lsGet('profile', {});
+                document.getElementById('profName').value = p.name || '';
+                document.getElementById('profEmail').value = p.email || currentUser?.email || '';
+                document.getElementById('profPhone').value = p.phone || '';
+                document.getElementById('profLinkedIn').value = p.linkedIn || '';
+                document.getElementById('profGitHub').value = p.gitHub || '';
+                document.getElementById('profPortfolio').value = p.portfolio || '';
+                document.getElementById('profRole').value = p.role || '';
+                document.getElementById('profSkills').value = p.skills || '';
+                document.getElementById('profLocation').value = p.location || '';
+                document.getElementById('profNearby').value = p.nearby || '';
+                document.getElementById('profExperience').value = p.experience || '';
+                document.getElementById('profSalary').value = p.salary || '';
+                document.getElementById('profWorkType').value = p.workType || '';
+                document.getElementById('profJobType').value = p.jobType || '';
+                document.getElementById('profNotice').value = p.notice || '';
+                autoApplyToggle.checked = p.autoApply || false;
             }
-
-            profileForm.addEventListener('submit', function(e) {
+            profileForm.addEventListener('submit', function(e){
                 e.preventDefault();
                 const profile = {
                     name: document.getElementById('profName').value.trim(),
@@ -1654,170 +1619,59 @@
                     autoApply: autoApplyToggle.checked,
                 };
                 lsSet('profile', profile);
-                // Update current user name if changed
-                if (profile.name && currentUser) {
-                    currentUser.name = profile.name;
-                    lsSet('session', currentUser);
-                    updateSidebarUser();
-                }
-                showToast('✅ Profile saved successfully!', 'success');
+                if(profile.name && currentUser){ currentUser.name = profile.name; lsSet('session', currentUser); updateSidebarUser(); }
+                showToast('✅ Profile saved!', 'success');
                 renderDashboard();
-                // Trigger auto-apply if enabled
-                if (profile.autoApply) {
-                    runAutoApply();
-                }
+                if(profile.autoApply) runAutoApply();
+            });
+            autoApplyToggle.addEventListener('change', function(){
+                if(this.checked) { showToast('⚡ Auto Apply ON.','info'); runAutoApply(); } else showToast('Auto Apply OFF.','info');
+                const p = lsGet('profile',{});
+                p.autoApply = this.checked; lsSet('profile',p); renderDashboard();
             });
 
-            // Auto-apply toggle change
-            autoApplyToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    showToast('⚡ Auto Apply enabled! The system will automatically apply to high-match jobs.',
-                        'info');
-                    runAutoApply();
-                } else {
-                    showToast('Auto Apply disabled.', 'info');
-                }
-                // Save immediately
-                const profile = lsGet('profile', {});
-                profile.autoApply = this.checked;
-                lsSet('profile', profile);
-                renderDashboard();
-            });
-
-            // ============ AUTO APPLY LOGIC ============
             function runAutoApply() {
-                const profile = lsGet('profile', {});
-                if (!profile.autoApply) return;
-                const matchedJobs = getMatchedJobs();
-                let autoAppliedCount = 0;
-                matchedJobs.forEach(job => {
-                    const score = calculateMatchScore(job, profile);
-                    // Auto-apply to jobs with score >= 70 that haven't been applied to yet
-                    if (score >= 70 && !applications.find(a => a.jobId === job.id)) {
-                        const newApp = {
-                            id: 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-                            jobId: job.id,
-                            role: job.role,
-                            company: job.company,
-                            location: job.location,
-                            status: 'applied',
-                            date: new Date().toISOString().split('T')[0],
-                            autoApplied: true,
-                        };
-                        applications.push(newApp);
-                        autoAppliedCount++;
+                const p = lsGet('profile',{});
+                if(!p.autoApply) return;
+                const matched = getMatchedJobs();
+                let count=0;
+                matched.forEach(job => {
+                    if(calculateMatchScore(job,p)>=70 && !applications.find(a=>a.jobId===job.id)){
+                        applications.push({ id:'app_'+Date.now()+Math.random(), jobId:job.id, role:job.role, company:job.company, location:job.location, status:'applied', date:new Date().toISOString().split('T')[0], autoApplied:true });
+                        count++;
                     }
                 });
-                if (autoAppliedCount > 0) {
-                    lsSet('applications', applications);
-                    showToast(`🤖 Auto-applied to ${autoAppliedCount} high-match job(s)!`, 'success');
-                    renderJobs(currentJobFilter);
-                    renderApplications(currentAppFilter);
-                    renderDashboard();
-                }
+                if(count>0){ lsSet('applications',applications); showToast(`🤖 Auto-applied to ${count} jobs!`,'success'); renderJobs(); renderApplications(currentAppFilter); renderDashboard(); }
             }
+            setInterval(()=>{ if(currentUser && lsGet('profile',{}).autoApply) runAutoApply(); }, 60000);
 
-            // ============ RESUME UPLOAD ============
-            uploadZone.addEventListener('click', () => resumeFileInput.click());
+            // ============ RESUME ============
+            uploadZone.addEventListener('click', ()=>resumeFileInput.click());
             resumeFileInput.addEventListener('change', handleResumeUpload);
-            uploadZone.addEventListener('dragover', function(e) { e.preventDefault();
-                this.style.borderColor = 'var(--accent)'; });
-            uploadZone.addEventListener('dragleave', function() { this.style.borderColor = 'var(--border-glass)'; });
-            uploadZone.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.style.borderColor = 'var(--border-glass)';
-                if (e.dataTransfer.files.length > 0) {
-                    resumeFileInput.files = e.dataTransfer.files;
-                    handleResumeUpload();
-                }
-            });
-
-            function handleResumeUpload() {
-                const file = resumeFileInput.files[0];
-                if (!file) return;
-                const allowedTypes = ['application/pdf',
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                ];
-                if (!allowedTypes.includes(file.type) && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx')) {
-                    showToast('Please upload a PDF or DOCX file.', 'warning');
-                    resumeFileInput.value = '';
-                    return;
-                }
-                if (file.size > 2 * 1024 * 1024) {
-                    showToast('File size must be under 2MB.', 'warning');
-                    resumeFileInput.value = '';
-                    return;
-                }
-                const resumeInfo = {
-                    name: file.name,
-                    size: (file.size / 1024).toFixed(1) + ' KB',
-                    type: file.type,
-                    uploadedAt: new Date().toISOString(),
-                };
-                lsSet('resumeInfo', resumeInfo);
-                showToast('✅ Resume uploaded successfully!', 'success');
-                renderResumePreview();
-                renderDashboard();
+            uploadZone.addEventListener('dragover', e=>{e.preventDefault(); uploadZone.style.borderColor='var(--accent)';});
+            uploadZone.addEventListener('dragleave', ()=>{ uploadZone.style.borderColor='var(--border-glass)';});
+            uploadZone.addEventListener('drop', e=>{ e.preventDefault(); uploadZone.style.borderColor='var(--border-glass)'; if(e.dataTransfer.files.length){ resumeFileInput.files=e.dataTransfer.files; handleResumeUpload(); } });
+            function handleResumeUpload(){
+                const file = resumeFileInput.files[0]; if(!file) return;
+                if(!file.type.match(/(pdf|docx)/) && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx')){ showToast('PDF/DOCX only.','warning'); return; }
+                if(file.size>2*1024*1024){ showToast('Max 2MB.','warning'); return; }
+                lsSet('resumeInfo',{ name:file.name, size:(file.size/1024).toFixed(1)+' KB', uploadedAt:new Date().toISOString() });
+                showToast('✅ Resume uploaded!','success'); renderResumePreview(); renderDashboard();
             }
-
-            function renderResumePreview() {
-                const resumeInfo = lsGet('resumeInfo', null);
-                if (resumeInfo) {
-                    resumePreview.innerHTML = `
-                        <div class="file-preview">
-                            <span class="file-icon">📄</span>
-                            <div class="file-info">
-                                <div class="file-name">${resumeInfo.name}</div>
-                                <div class="file-size">${resumeInfo.size} • Uploaded ${new Date(resumeInfo.uploadedAt).toLocaleDateString()}</div>
-                            </div>
-                        </div>
-                    `;
-                    removeResumeBtn.style.display = 'inline-block';
-                } else {
-                    resumePreview.innerHTML = '<p style="color:var(--text-muted);text-align:center;">No resume uploaded yet.</p>';
-                    removeResumeBtn.style.display = 'none';
-                }
+            function renderResumePreview(){
+                const info = lsGet('resumeInfo');
+                if(info){ resumePreview.innerHTML=`<div class="file-preview"><span class="file-icon">📄</span><div class="file-info"><div class="file-name">${info.name}</div><div class="file-size">${info.size} • ${new Date(info.uploadedAt).toLocaleDateString()}</div></div></div>`; removeResumeBtn.style.display='inline-block'; }
+                else { resumePreview.innerHTML='<p style="color:var(--text-muted);text-align:center;">No resume uploaded.</p>'; removeResumeBtn.style.display='none'; }
             }
+            removeResumeBtn.addEventListener('click', ()=>{ lsRemove('resumeInfo'); resumeFileInput.value=''; showToast('Resume removed.','info'); renderResumePreview(); renderDashboard(); });
 
-            removeResumeBtn.addEventListener('click', function() {
-                lsRemove('resumeInfo');
-                resumeFileInput.value = '';
-                showToast('Resume removed.', 'info');
-                renderResumePreview();
-                renderDashboard();
-            });
-
-            // ============ INITIALIZATION ============
-            function init() {
-                setAuthMode(false);
-                allJobs = generateMockJobs();
-                lsSet('jobsData', allJobs);
-                applications = lsGet('applications', []);
-                const authed = checkAuth();
-                if (!authed) {
-                    loginOverlay.classList.remove('hidden');
-                    appContainer.style.display = 'none';
-                }
-                renderResumePreview();
-            }
-
-            // ============ PERIODIC AUTO-APPLY CHECK ============
-            setInterval(() => {
-                if (currentUser) {
-                    const profile = lsGet('profile', {});
-                    if (profile.autoApply) {
-                        runAutoApply();
-                    }
-                }
-            }, 60000); // Check every 60 seconds
-
-            // ============ START APP ============
-            init();
-
-            console.log('🚀 JobAuto AI - MVP Ready');
-            console.log('📋 Features: Auth | Resume Upload | Job Matching | Auto Apply | Application Tracking');
-            console.log('💾 All data stored in localStorage');
-            console.log('👤 Demo: Sign up with any email & password (min 4 chars) to get started!');
+            // ============ INIT ============
+            setAuthMode(false);
+            allJobs = generateMockJobs(); lsSet('jobsData', allJobs);
+            applications = lsGet('applications', []);
+            if(!checkAuth()){ loginOverlay.classList.remove('hidden'); appContainer.style.display='none'; }
+            renderResumePreview();
+            console.log('🚀 JobAuto AI - Google Sign-In, Forgot Password, INR salaries ready.');
         })();
     </script>
 </body>
