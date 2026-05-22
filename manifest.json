@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "AutoApply AI Agent",
+  "version": "1.0",
+  "description": "Smart Job Agent to fetch and auto-apply on jobs.",
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab",
+    "tabs",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://*.linkedin.com/*",
+    "*://*.naukri.com/*"
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Open AutoApply AI"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.linkedin.com/jobs/*",
+        "*://*.naukri.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
